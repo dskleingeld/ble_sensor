@@ -43,6 +43,7 @@ nRF5x_addBSP(TRUE FALSE FALSE) # (btn atn_btn nfc)
 nRF5x_addBLEGATT()
 nRF5x_addBLEService(ble_nus_c)
 nRF5x_addBLEService(ble_lbs_c)
+nRF5x_addBLEService(ble_lbs)
 nRF5x_addAppFDS()
 nRF5x_addBLEPeerManager()
 nRF5x_addBLEAdvertising()
@@ -126,8 +127,16 @@ include_directories("${CMAKE_SOURCE_DIR}/config")
 ##############################################################################
 # SOURCE CODE
 ##############################################################################
-list(APPEND SOURCE_FILES "src/main.c")
+# own libs
+include_directories(
+        src, 
+#        src/service
+)
+#list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
+list(APPEND SOURCE_FILES "src/init_ble.c")
 
+
+list(APPEND SOURCE_FILES "src/main.c")
 ##############################################################################
 # EXECUTABLES
 ##############################################################################

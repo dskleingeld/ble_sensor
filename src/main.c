@@ -1,49 +1,29 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include "nrf_delay.h"
 #include "nrf_log.h"
-#include <nrfx_log.h>
-#include <libraries/log/nrf_log_ctrl.h>
-#include <libraries/log/nrf_log_default_backends.h>
-#include "bsp.h"
-#include "nrf.h"
-#include <stdbool.h>
-#include <stdint.h>
-#include "boards.h"
-#include "system_nrf52.h"
-#include "nrf_delay.h"
-#include "sdk_config.h"
+#include "init_ble.h"
 
-//for sdk documentation see: https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v13.0.0%2Fgroup__nrf__log__backend.html
+/**@brief Function for application main entry.
+ */
+int main(void) {
+    // Initialize.
+    log_init();
+    leds_init();
+    timers_init();
+    buttons_init();
+    power_management_init();
+    ble_stack_init();
+    gap_params_init();
+    gatt_init();
+    services_init();
+    advertising_init();
+    conn_params_init();
 
-#define ENABLE_SWD 1
+    // Start execution.
+    NRF_LOG_INFO("Blinky example started.");
+    advertising_start();
 
-//static const uint8_t leds_list[LEDS_NUMBER] = { 9, 7, LED_3, LED_4 };
-static const uint8_t leds_list[2] = { 17,18 };
-
-int main(void)
-{
-
-	NRF_LOG_INIT((void*)0);
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-    NRF_LOG_INFO("Started\n");
-    /* Configure LED-pins as outputs. */
-    
-    LEDS_CONFIGURE(LEDS_MASK);
-    while (true)
+    // Enter main loop.
+    for (;;)
     {
-    	 NRF_LOG_PROCESS();
-        for (int i = 0; i < LEDS_NUMBER; i++)
-        {
-            LEDS_INVERT(1 << leds_list[i]);
-           
-            nrf_delay_ms(500);
-        }
-        
-        NRF_LOG_INFO("testing print CMAKE\n");
-        NRF_LOG_FLUSH();
+        idle_state_handle();
     }
 }
-// https://devzone.nordicsemi.com/f/nordic-q-a/20314/error-jlinkarm-dll-reported-an-error-try-again
-// https://github.com/JF002/nrf52-baseproject
-// https://github.com/Polidea/cmake-nRF5x
