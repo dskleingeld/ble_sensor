@@ -14,15 +14,19 @@
 #include "nrf_delay.h"
 #include "sdk_config.h"
 
+//for sdk documentation see: https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v13.0.0%2Fgroup__nrf__log__backend.html
+
 #define ENABLE_SWD 1
 
-static const uint8_t leds_list[LEDS_NUMBER] = { 9, 7, LED_3, LED_4 };
+//static const uint8_t leds_list[LEDS_NUMBER] = { 9, 7, LED_3, LED_4 };
+static const uint8_t leds_list[2] = { 17,18 };
 
 int main(void)
 {
 
 	NRF_LOG_INIT((void*)0);
     NRF_LOG_DEFAULT_BACKENDS_INIT();
+    NRF_LOG_INFO("Started\n");
     /* Configure LED-pins as outputs. */
     
     LEDS_CONFIGURE(LEDS_MASK);
