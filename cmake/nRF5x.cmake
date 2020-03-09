@@ -5,10 +5,6 @@ if (NOT NRF5_SDK_PATH)
     message(FATAL_ERROR "The path to the nRF5 SDK (NRF5_SDK_PATH) must be set.")
 endif ()
 
-if (NOT NRFJPROG)
-    message(FATAL_ERROR "The path to the nrfjprog utility (NRFJPROG) must be set.")
-endif ()
-
 if (NOT ARM_NONE_EABI_TOOLCHAIN_PATH)
     message(FATAL_ERROR "arm none eabi toolchain not found.")
 endif ()

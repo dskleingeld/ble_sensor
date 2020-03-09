@@ -1,7 +1,7 @@
  ##############################################################################
 # CMAKE CONFIGURATION
 ##############################################################################
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.13)
 
 set(PROJECT_NA "blinky")
 project(ble_app_${PROJECT_NA} C ASM)
@@ -17,11 +17,11 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
 
 # You must set these variables with your own path
-set(NRF_TARGET 						"nrf52"											)	# nrf51 or nrf52
-set(ARM_NONE_EABI_TOOLCHAIN_PATH 	"/opt/SEGGER/gcc-arm-none-eabi-9-2019-q4-major"	) 	# Path to root folder 
-set(NRF5_SDK_PATH 					"/opt/SEGGER/nRF5SDK"							)	# Path to root folder
-set(NRFJPROG 						"/opt/SEGGER/Toolchain/nrfjprog/nrfjprog"		)	# Path to .bin file
-#set(MERGE_HEX 						"/opt/SEGGER/Toolchain/mergehex/mergehex"		)
+set(NRF_TARGET "nrf52") # nrf51 or nrf52
+set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder 
+set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folder
+set(OPENOCD "openocd")	# Path to openocd if not in path
+#set(MERGE_HEX "/opt/SEGGER/Toolchain/mergehex/mergehex")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -105,12 +105,12 @@ include_directories("${CMAKE_SOURCE_DIR}/config")
 #         COMMENT "erasing flashing"
 #         )
 
-add_custom_target(FLASH_SOFTDEVICE ALL
-        COMMAND ${NRFJPROG} --program ${SOFTDEVICE_PATH} -f ${NRF_TARGET} --sectorerase --log
-        COMMAND sleep 0.5s
-        COMMAND ${NRFJPROG} --reset -f ${NRF_TARGET}
-        COMMENT "flashing SoftDevice"
-        ) 
+#add_custom_target(FLASH_SOFTDEVICE ALL
+#        COMMAND ${NRFJPROG} --program ${SOFTDEVICE_PATH} -f ${NRF_TARGET} --sectorerase --log
+#        COMMAND sleep 0.5s
+#        COMMAND ${NRFJPROG} --reset -f ${NRF_TARGET}
+#        COMMENT "flashing SoftDevice"
+#        ) 
 
 ##############################################################################
 # NEW SDK LIBRARIES 
@@ -148,11 +148,8 @@ add_custom_command(TARGET ${PROJECT_NAME}
 ##############################################################################
 add_custom_target("FLASH_${PROJECT_NAME}" ALL
         DEPENDS ${PROJECT_NAME}
-        COMMAND ${NRFJPROG} --program ${PROJECT_NAME}.hex -f ${NRF_TARGET} --sectorerase
-        COMMAND sleep 0.5s
-        COMMAND ${NRFJPROG} --reset -f ${NRF_TARGET}
-        COMMENT "flashing ${PROJECT_NAME}.hex"
-        )
+        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'init_reset halt\; program "${PROJECT_NAME}.hex" verify\; reset\; exit'
+        COMMENT "flashing ${PROJECT_NAME}.hex")
 
 message("=========================================")
 message("Project: ${PROJECT_NAME} COMPILED WITH CMAKE " ${CMAKE_VERSION})
