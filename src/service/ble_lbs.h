@@ -83,10 +83,10 @@ extern "C" {
  * @param   _name   Name of the instance.
  * @hideinitializer
  */
-#define BLE_LBS_DEF(_name)                                                                          \
-static ble_lbs_t _name;                                                                             \
-NRF_SDH_BLE_OBSERVER(_name ## _obs,                                                                 \
-                     BLE_LBS_BLE_OBSERVER_PRIO,                                                     \
+#define BLE_LBS_DEF(_name)                                                      \
+static ble_lbs_t _name;                                                         \
+NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             \
+                     BLE_LBS_BLE_OBSERVER_PRIO,                                 \
                      ble_lbs_on_ble_evt, &_name)
 
 #define LBS_UUID_BASE        {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, \

@@ -1,5 +1,5 @@
-#ifndef INIT_BLE
-#define INIT_BLE
+#ifndef INIT_BLE_H
+#define INIT_BLE_H
 
 /**
  * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
@@ -62,8 +62,8 @@
 #include "boards.h"
 #include "app_timer.h"
 #include "app_button.h"
-//#include "service/ble_lbs.h"
-#include "ble_lbs.h"
+#include "service/ble_lbs.h"
+//#include "ble_lbs.h"
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
@@ -240,8 +240,6 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action);
 /**@brief Function for initializing the button handler module.
  */
 static void buttons_init(void);
-
-static void log_init(void);
 
 
 /**@brief Function for initializing power management.
