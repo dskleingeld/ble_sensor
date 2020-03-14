@@ -72,7 +72,6 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
-
 #define ADVERTISING_LED                 BSP_BOARD_LED_0                         /**< Is on when device is advertising. */
 #define CONNECTED_LED                   BSP_BOARD_LED_1                         /**< Is on when device has connected. */
 #define LEDBUTTON_LED                   BSP_BOARD_LED_2                         /**< LED to be toggled with the help of the LED Button Service. */
@@ -138,7 +137,7 @@ static void leds_init(void);
  *
  * @details Initializes the timer module.
  */
-static void timers_init(void);
+void timers_init(void);
 
 
 /**@brief Function for the GAP initialization.
@@ -146,12 +145,12 @@ static void timers_init(void);
  * @details This function sets up all the necessary GAP (Generic Access Profile) parameters of the
  *          device including the device name, appearance, and the preferred connection parameters.
  */
-static void gap_params_init(void);
+void gap_params_init(void);
 
 
 /**@brief Function for initializing the GATT module.
  */
-static void gatt_init(void);
+void gatt_init(void);
 
 
 /**@brief Function for initializing the Advertising functionality.
@@ -182,7 +181,7 @@ static void led_write_handler(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t l
 
 /**@brief Function for initializing services that will be used by the application.
  */
-static void services_init(void);
+void services_init(void);
 
 
 /**@brief Function for handling the Connection Parameters Module.
@@ -226,7 +225,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context);
  *
  * @details Initializes the SoftDevice and the BLE event interrupt.
  */
-static void ble_stack_init(void);
+void ble_stack_init(void);
 
 
 /**@brief Function for handling events from the button handler module.
@@ -244,7 +243,7 @@ static void buttons_init(void);
 
 /**@brief Function for initializing power management.
  */
-static void power_management_init(void);
+void power_management_init(void);
 
 
 /**@brief Function for handling the idle state (main loop).

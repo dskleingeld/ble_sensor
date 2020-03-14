@@ -53,7 +53,7 @@ static void leds_init(void)
  *
  * @details Initializes the timer module.
  */
-static void timers_init(void)
+void timers_init(void)
 {
     // Initialize timer module, making it use the scheduler
     ret_code_t err_code = app_timer_init();
@@ -66,7 +66,7 @@ static void timers_init(void)
  * @details This function sets up all the necessary GAP (Generic Access Profile) parameters of the
  *          device including the device name, appearance, and the preferred connection parameters.
  */
-static void gap_params_init(void)
+void gap_params_init(void)
 {
     ret_code_t              err_code;
     ble_gap_conn_params_t   gap_conn_params;
@@ -93,7 +93,7 @@ static void gap_params_init(void)
 
 /**@brief Function for initializing the GATT module.
  */
-static void gatt_init(void)
+void gatt_init(void)
 {
     ret_code_t err_code = nrf_ble_gatt_init(&m_gatt, NULL);
     APP_ERROR_CHECK(err_code);
@@ -183,7 +183,7 @@ static void led_write_handler(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t l
 
 /**@brief Function for initializing services that will be used by the application.
  */
-static void services_init(void)
+void services_init(void)
 {
     ret_code_t         err_code;
     ble_lbs_init_t     init     = {0};
@@ -357,7 +357,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
  *
  * @details Initializes the SoftDevice and the BLE event interrupt.
  */
-static void ble_stack_init(void)
+void ble_stack_init(void)
 {
     ret_code_t err_code;
 
@@ -429,7 +429,7 @@ static void buttons_init(void)
 
 /**@brief Function for initializing power management.
  */
-static void power_management_init(void)
+void power_management_init(void)
 {
     ret_code_t err_code;
     err_code = nrf_pwr_mgmt_init();
