@@ -16,16 +16,16 @@ int main(void) {
     gap_params_init();
     gatt_init();
     services_init();
-    // advertising_init();
-    // conn_params_init();
+    advertising_init();
+    conn_params_init();
 
     // Start execution.
-    // NRF_LOG_INFO("Blinky example started.");
-    // advertising_start();
+    NRF_LOG_INFO("Blinky example started.");
+    advertising_start();
 
     // Enter main loop.
     for (;;)
     {
-        // idle_state_handle();
+        idle_state_handle();
     }
 }

@@ -158,7 +158,7 @@ void gatt_init(void);
  * @details Encodes the required advertising data and passes it to the stack.
  *          Also builds a structure to be passed to the stack when starting advertising.
  */
-static void advertising_init(void);
+void advertising_init(void);
 
 
 /**@brief Function for handling Queued Write Module errors.
@@ -207,12 +207,12 @@ static void conn_params_error_handler(uint32_t nrf_error);
 
 /**@brief Function for initializing the Connection Parameters module.
  */
-static void conn_params_init(void);
+void conn_params_init(void);
 
 
 /**@brief Function for starting advertising.
  */
-static void advertising_start(void);
+void advertising_start(void);
 
 /**@brief Function for handling BLE events.
  *
@@ -250,6 +250,6 @@ void power_management_init(void);
  *
  * @details If there is no pending log operation, then sleep until next the next event occurs.
  */
-static void idle_state_handle(void);
+void idle_state_handle(void);
 
 #endif
