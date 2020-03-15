@@ -22,6 +22,7 @@ set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder
 set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folders
 set(SOFTDEVICE_PATH "/home/kleingeld/Documents/Projects/ble_sensor/softdevice/s132_nrf52_7.0.1_softdevice.hex")
 set(OPENOCD "openocd")	# Path to openocd if not in path
+set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex")
 #set(MERGE_HEX "/opt/SEGGER/Toolchain/mergehex/mergehex")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -107,10 +108,10 @@ include_directories("${CMAKE_SOURCE_DIR}/config")
 #        COMMENT "erasing flashing"
 #        )
 
-#add_custom_target(FLASH_SOFTDEVICE
-#        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'init_reset halt\; program ${SOFTDEVICE_PATH} verify\; exit'
-#        COMMENT "flashing SoftDevice"
-#)
+add_custom_target(FLASH_SOFTDEVICE
+        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'program "../${SOFTDEVICE}" verify reset exit'
+        COMMENT "flashing SoftDevice"
+)
 
 ##############################################################################
 # NEW SDK LIBRARIES 
@@ -130,12 +131,12 @@ include_directories("${CMAKE_SOURCE_DIR}/config")
 # own libs
 include_directories(
         src, 
-        src/service
+#        src/service
 )
 
-list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
-list(APPEND SOURCE_FILES "src/init_ble.c")
-list(APPEND SOURCE_FILES "src/log.c")
+#list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
+#list(APPEND SOURCE_FILES "src/init_ble.c")
+#list(APPEND SOURCE_FILES "src/log.c")
 list(APPEND SOURCE_FILES "src/main.c")
 ##############################################################################
 # EXECUTABLES
@@ -157,7 +158,7 @@ add_custom_command(TARGET ${PROJECT_NAME}
 ##############################################################################
 add_custom_target("FLASH_${PROJECT_NAME}" ALL
         DEPENDS ${PROJECT_NAME}
-        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'init_reset halt\; program "${PROJECT_NAME}.hex" verify\; reset\; exit'
+        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'program "${PROJECT_NAME}.hex" verify reset exit'
         COMMENT "flashing ${PROJECT_NAME}.hex")
 
 message("=========================================")

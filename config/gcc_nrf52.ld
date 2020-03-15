@@ -1,13 +1,41 @@
 /* Linker script to configure memory regions. */
+/* 
+  linker script how to:
+  https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/4/html/Using_ld_the_GNU_Linker/script-format.html 
+*/
 
 SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 
-MEMORY
+/* MBR size: 4kB */
+/*s113 MBR+softdevice usage: flash: 0x0001C000=114688, ram: 0x00001198=4504*/
+/*s132 MBR+softdevice usage: flash: 0x00026000=155648, ram: 0x00001628=5672*/
+/*set flash to free to
+  0x00000000 + (MBR+softdevice) flash size
+  and ram to
+  0x20000000 + (MBR+softdevice) ram size
+*/
+/* more info: 
+  https://devzone.nordicsemi.com/nordic/short-range-guides/b/getting-started/posts/adjustment-of-ram-and-flash-memory
+*/
+
+/*with softdevic s132*/
+/*MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x26000, LENGTH = 0x5a000
-  RAM (rwx) :  ORIGIN = 0x200018c8, LENGTH = 0xe738
+  FLASH (rx) : ORIGIN = 0x00026000, LENGTH = 0x50000
+  RAM (rwx) : ORIGIN = 0x20001668, LENGTH = 0x8000
+}*/
+
+/*without any softdevice*/
+MEMORY 
+{
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x50000
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x8000
 }
+
+
+/*seems to map certains symbols to places in ram where the softdevice will
+  expect them */
 
 SECTIONS
 {
