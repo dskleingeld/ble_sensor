@@ -20,7 +20,6 @@ set(CMAKE_C_STANDARD 99)
 set(NRF_TARGET "nrf52") # nrf51 or nrf52
 set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder 
 set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folders
-set(SOFTDEVICE_PATH "/home/kleingeld/Documents/Projects/ble_sensor/softdevice/s132_nrf52_7.0.1_softdevice.hex")
 set(OPENOCD "openocd")	# Path to openocd if not in path
 set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex")
 #set(MERGE_HEX "/opt/SEGGER/Toolchain/mergehex/mergehex")
