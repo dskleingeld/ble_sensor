@@ -20,18 +20,18 @@ GROUP(-lgcc -lc -lnosys)
 */
 
 /*with softdevic s132*/
-/*MEMORY
+MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00026000, LENGTH = 0x50000
   RAM (rwx) : ORIGIN = 0x20001668, LENGTH = 0x8000
-}*/
+}
 
 /*without any softdevice*/
-MEMORY 
+/*MEMORY 
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x50000
   RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x8000
-}
+}*/
 
 
 /*seems to map certains symbols to places in ram where the softdevice will

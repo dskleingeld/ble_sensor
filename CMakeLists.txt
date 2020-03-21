@@ -21,8 +21,8 @@ set(NRF_TARGET "nrf52") # nrf51 or nrf52
 set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder 
 set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folders
 set(OPENOCD "openocd")	# Path to openocd if not in path
-set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex")
-#set(MERGE_HEX "/opt/SEGGER/Toolchain/mergehex/mergehex")
+set(SOFTDEVICE "softdevice/s132/s132_nrf52_7.0.1_softdevice.hex")
+#set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex") #dont forget to adjust linker memory settings
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
