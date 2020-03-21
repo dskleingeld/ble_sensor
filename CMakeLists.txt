@@ -130,12 +130,12 @@ add_custom_target(FLASH_SOFTDEVICE
 # own libs
 include_directories(
         src, 
-#        src/service
+        src/service
 )
 
-#list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
-#list(APPEND SOURCE_FILES "src/init_ble.c")
-#list(APPEND SOURCE_FILES "src/log.c")
+list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
+list(APPEND SOURCE_FILES "src/init_ble.c")
+list(APPEND SOURCE_FILES "src/log.c")
 list(APPEND SOURCE_FILES "src/main.c")
 ##############################################################################
 # EXECUTABLES
