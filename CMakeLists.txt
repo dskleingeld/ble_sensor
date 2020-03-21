@@ -19,9 +19,10 @@ set(CMAKE_C_STANDARD 99)
 # You must set these variables with your own path
 set(NRF_TARGET "nrf52") # nrf51 or nrf52
 set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder 
-set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folder
+set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folders
 set(OPENOCD "openocd")	# Path to openocd if not in path
-#set(MERGE_HEX "/opt/SEGGER/Toolchain/mergehex/mergehex")
+set(SOFTDEVICE "softdevice/s132/s132_nrf52_7.0.1_softdevice.hex")
+#set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex") #dont forget to adjust linker memory settings
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -101,17 +102,15 @@ include_directories("${CMAKE_SOURCE_DIR}/config")
 # ERASE BOARD AND FLASH SOFTDEVICE
 ##############################################################################
 # adds target for erasing and flashing the board with a softdevice
-# add_custom_target(FLASH_ERASE ALL
-#         COMMAND ${NRFJPROG} --family ${NRF_TARGET} --eraseall
-#         COMMENT "erasing flashing"
-#         )
+#add_custom_target(FLASH_ERASE
+#        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'init_reset halt\; init\; nrf5 mass_erase\; init_reset run\; exit'
+#        COMMENT "erasing flashing"
+#        )
 
-#add_custom_target(FLASH_SOFTDEVICE ALL
-#        COMMAND ${NRFJPROG} --program ${SOFTDEVICE_PATH} -f ${NRF_TARGET} --sectorerase --log
-#        COMMAND sleep 0.5s
-#        COMMAND ${NRFJPROG} --reset -f ${NRF_TARGET}
-#        COMMENT "flashing SoftDevice"
-#        ) 
+add_custom_target(FLASH_SOFTDEVICE
+        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'program "../${SOFTDEVICE}" verify reset exit'
+        COMMENT "flashing SoftDevice"
+)
 
 ##############################################################################
 # NEW SDK LIBRARIES 
@@ -158,7 +157,7 @@ add_custom_command(TARGET ${PROJECT_NAME}
 ##############################################################################
 add_custom_target("FLASH_${PROJECT_NAME}" ALL
         DEPENDS ${PROJECT_NAME}
-        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'init_reset halt\; program "${PROJECT_NAME}.hex" verify\; reset\; exit'
+        COMMAND ${OPENOCD} -d2 -f ../openocd_nrf52.cfg -c 'program "${PROJECT_NAME}.hex" verify reset exit'
         COMMENT "flashing ${PROJECT_NAME}.hex")
 
 message("=========================================")
