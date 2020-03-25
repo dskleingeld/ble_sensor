@@ -272,7 +272,7 @@ void advertising_start(void)
     err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
     APP_ERROR_CHECK(err_code);
 
-    bsp_board_led_on(ADVERTISING_LED);
+    //bsp_board_led_on(ADVERTISING_LED);
 }
 
 

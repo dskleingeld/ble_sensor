@@ -62,7 +62,7 @@
 #include "boards.h"
 #include "app_timer.h"
 #include "app_button.h"
-#include "service/ble_lbs.h"
+#include "service/init_service.h"
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"

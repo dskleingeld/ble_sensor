@@ -38,7 +38,7 @@
  *
  */
 #include "sdk_common.h"
-#include "ble_lbs.h"
+#include "init_service.h"
 #include "ble_srv_common.h"
 
 
