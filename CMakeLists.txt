@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(PROJECT_NA "blinky")
-project(ble_app_${PROJECT_NA} CXX ASM)
+project(ble_app_${PROJECT_NA} C CXX ASM)
 
 # set build type = Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -130,14 +130,9 @@ add_custom_target(FLASH_SOFTDEVICE
 # own libs
 include_directories(
         src, 
-        src/service
 )
 
-list(APPEND SOURCE_FILES "src/service/slow_data.c")
-list(APPEND SOURCE_FILES "src/service/init_service.c")
-list(APPEND SOURCE_FILES "src/init_ble.c")
-list(APPEND SOURCE_FILES "src/log.c")
-list(APPEND SOURCE_FILES "src/main.c")
+list(APPEND SOURCE_FILES "src/main.cpp")
 ##############################################################################
 # EXECUTABLES
 ##############################################################################
