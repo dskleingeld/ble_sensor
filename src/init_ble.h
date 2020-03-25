@@ -63,11 +63,11 @@
 #include "app_timer.h"
 #include "app_button.h"
 #include "service/ble_lbs.h"
-//#include "ble_lbs.h"
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
 
+#include "nrf_strerror.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"

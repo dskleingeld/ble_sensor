@@ -53,7 +53,7 @@
  
 
 #ifndef BLE_ADVERTISING_ENABLED
-#define BLE_ADVERTISING_ENABLED 0
+#define BLE_ADVERTISING_ENABLED 1
 #endif
 
 // <q> BLE_DTM_ENABLED  - ble_dtm - Module for testing RF/PHY using DTM commands
@@ -77,7 +77,7 @@
 #endif
 // <o> NRF_BLE_QWR_MAX_ATTR - Maximum number of attribute handles that can be registered. This number must be adjusted according to the number of attributes for which Queued Writes will be enabled. If it is zero, the module will reject all Queued Write requests. 
 #ifndef NRF_BLE_QWR_MAX_ATTR
-#define NRF_BLE_QWR_MAX_ATTR 0
+#define NRF_BLE_QWR_MAX_ATTR 4
 #endif
 
 // </e>
@@ -11270,12 +11270,12 @@
 
 // <o> NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE - Attribute Table size in bytes. The size must be a multiple of 4. 
 #ifndef NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE
-#define NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE 248
+#define NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE 496//was 248
 #endif
 
 // <o> NRF_SDH_BLE_VS_UUID_COUNT - The number of vendor-specific UUIDs. 
 #ifndef NRF_SDH_BLE_VS_UUID_COUNT
-#define NRF_SDH_BLE_VS_UUID_COUNT 0
+#define NRF_SDH_BLE_VS_UUID_COUNT 1
 #endif
 
 // <q> NRF_SDH_BLE_SERVICE_CHANGED  - Include the Service Changed characteristic in the Attribute Table.

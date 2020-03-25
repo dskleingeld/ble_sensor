@@ -109,6 +109,7 @@ uint32_t ble_lbs_init(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
     add_char_params.read_access       = SEC_OPEN;
     add_char_params.cccd_write_access = SEC_OPEN;
 
+    NRF_LOG_INFO("113");
     err_code = characteristic_add(p_lbs->service_handle,
                                   &add_char_params,
                                   &p_lbs->button_char_handles);
@@ -116,6 +117,7 @@ uint32_t ble_lbs_init(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
     {
         return err_code;
     }
+    NRF_LOG_INFO("121");
 
     // Add LED characteristic.
     memset(&add_char_params, 0, sizeof(add_char_params));

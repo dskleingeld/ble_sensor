@@ -8,30 +8,41 @@ SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 
 /* MBR size: 4kB */
+/*ram len: 32000 = 7D00*/
+/*flash len: 256000 = 3E800*/
 /*s113 MBR+softdevice usage: flash: 0x0001C000=114688, ram: 0x00001198=4504*/
 /*s132 MBR+softdevice usage: flash: 0x00026000=155648, ram: 0x00001628=5672*/
-/*set flash to free to
-  0x00000000 + (MBR+softdevice) flash size
-  and ram to
-  0x20000000 + (MBR+softdevice) ram size
-*/
-/* more info: 
-  https://devzone.nordicsemi.com/nordic/short-range-guides/b/getting-started/posts/adjustment-of-ram-and-flash-memory
-*/
+/*set flash to free to*/
+/*0x00000000 + (MBR+softdevice) flash size*/
+/*and ram to*/
+/*0x20000000 + (MBR+softdevice) ram size*/
+/* more info: https://devzone.nordicsemi.com/nordic/short-range-guides/b/getting-started/posts/adjustment-of-ram-and-flash-memory */
 
 /*with softdevic s132*/
+/*ram starts at: 536876648, length left: 32768 = 0x8000*/
+/*MEMORY*/
+/*{*/
+/*  FLASH (rx) : ORIGIN = 0x00026000, LENGTH = 0x50000*/
+/*  RAM (rwx) : ORIGIN = 0x20001668, LENGTH = 0x8000*/
+/*}*/
+
+/*with softdevic s132 and extra softdevice ram*/
+/*ram starts later then min s132 size (as instructed by runtime error)*/
+/*length left smaller then min s132 (as instructed by runtime error)*/
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00026000, LENGTH = 0x50000
-  RAM (rwx) : ORIGIN = 0x20001668, LENGTH = 0x8000
+  RAM (rwx) : ORIGIN = 0x20001ED0, LENGTH = 0xE130
 }
 
 /*without any softdevice*/
-/*MEMORY 
-{
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x50000
-  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x8000
-}*/
+/*ram len: 32000 = 7D00*/
+/*flash len: 256000 = 3E800*/
+/*MEMORY*/ 
+/*{*/
+/*  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x50000*/
+/*  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x8000*/
+/*}*/
 
 
 /*seems to map certains symbols to places in ram where the softdevice will

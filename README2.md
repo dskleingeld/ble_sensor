@@ -18,3 +18,11 @@ run "cmake ../ -G Ninja"
 - to build
 run ninja from the build directory
 
+ - changes to sdk_config.h:
+NRF_SDH_BLE_VS_UUID_COUNT increased to 1
+NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE increased to 496
+
+- how to connect for testing:
+sudo bluetoothctl
+    scan on
+    connect C6:46:56:AC:2C:4C

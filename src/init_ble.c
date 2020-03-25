@@ -193,13 +193,17 @@ void services_init(void)
     qwr_init.error_handler = nrf_qwr_error_handler;
 
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
+    NRF_LOG_INFO("Test");
     APP_ERROR_CHECK(err_code);
 
     // Initialize LBS.
     init.led_write_handler = led_write_handler;
 
     err_code = ble_lbs_init(&m_lbs, &init);
+    NRF_LOG_INFO("Test2");
+    NRF_LOG_ERROR(nrf_strerror_find(err_code));
     APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("Test3");
 }
 
 

@@ -68,6 +68,7 @@
 #ifndef BLE_LBS_H__
 #define BLE_LBS_H__
 
+#include "nrf_log.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "ble.h"
