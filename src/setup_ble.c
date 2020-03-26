@@ -1,4 +1,4 @@
-#include "init_ble.h"
+#include "setup_ble.h"
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -46,18 +46,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 static void leds_init(void)
 {
     bsp_board_init(BSP_INIT_LEDS);
-}
-
-
-/**@brief Function for the Timer initialization.
- *
- * @details Initializes the timer module.
- */
-void timers_init(void)
-{
-    // Initialize timer module, making it use the scheduler
-    ret_code_t err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
 }
 
 

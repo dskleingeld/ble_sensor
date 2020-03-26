@@ -46,6 +46,7 @@
 #ifdef USE_APP_CONFIG
 #include "app_config.h"
 #endif
+
 // <h> nRF_BLE 
 
 //==========================================================

@@ -1,5 +1,4 @@
-#ifndef INIT_BLE_H
-#define INIT_BLE_H
+#pragma once
 
 /**
  * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
@@ -104,15 +103,6 @@ BLE_LBS_DEF(m_lbs);                                                             
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
 
-static uint16_t m_conn_handle;                        /**< Handle of the current connection. */
-
-static uint8_t m_adv_handle;                   /**< Advertising handle used to identify an advertising set. */
-static uint8_t m_enc_advdata[BLE_GAP_ADV_SET_DATA_SIZE_MAX];                    /**< Buffer for storing an encoded advertising set. */
-static uint8_t m_enc_scan_response_data[BLE_GAP_ADV_SET_DATA_SIZE_MAX];         /**< Buffer for storing an encoded scan data. */
-
-/**@brief Struct that contains pointers to the encoded advertising data. */
-static ble_gap_adv_data_t m_adv_data;
-
 /**@brief Function for assert macro callback.
  *
  * @details This function will be called in case of an assert in the SoftDevice.
@@ -132,13 +122,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name);
  * @details Initializes all LEDs used by the application.
  */
 static void leds_init(void);
-
-/**@brief Function for the Timer initialization.
- *
- * @details Initializes the timer module.
- */
-void timers_init(void);
-
 
 /**@brief Function for the GAP initialization.
  *
@@ -251,5 +234,3 @@ void power_management_init(void);
  * @details If there is no pending log operation, then sleep until next the next event occurs.
  */
 void idle_state_handle(void);
-
-#endif

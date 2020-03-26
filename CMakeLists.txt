@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(PROJECT_NA "blinky")
-project(ble_app_${PROJECT_NA} CXX ASM)
+project(ble_app_${PROJECT_NA} C CXX ASM)
 
 # set build type = Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -13,7 +13,7 @@ message("\n" "=========================================")
 message("Project: ${PROJECT_NAME} ")
 message("=========================================")
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 99)
 
 # You must set these variables with your own path
@@ -115,13 +115,13 @@ add_custom_target(FLASH_SOFTDEVICE
 ##############################################################################
 # NEW SDK LIBRARIES 
 ##############################################################################
-# include_directories(                
-#                 "${NRF5_SDK_PATH}/components/ble/nrf_ble_scan"               
-#         )
+include_directories(                
+        "${NRF5_SDK_PATH}/components/libraries/simple_timer"               
+)
 
-#         list(APPEND SDK_SOURCE_FILES              
-#                 "${NRF5_SDK_PATH}/components/ble/nrf_ble_scan/nrf_ble_scan.c"               
-#         )
+list(APPEND SDK_SOURCE_FILES              
+        "${NRF5_SDK_PATH}/components/libraries/simple_timer/app_simple_timer.c"         
+)
 
 ##############################################################################
 # SOURCE CODE
@@ -133,11 +133,14 @@ include_directories(
         src/service
 )
 
-list(APPEND SOURCE_FILES "src/service/slow_data.c")
+#list(APPEND SOURCE_FILES "src/service/slow_data.cpp")
+#list(APPEND SOURCE_FILES "src/service/package.cpp")
 list(APPEND SOURCE_FILES "src/service/init_service.c")
-list(APPEND SOURCE_FILES "src/init_ble.c")
-list(APPEND SOURCE_FILES "src/log.c")
-list(APPEND SOURCE_FILES "src/main.c")
+list(APPEND SOURCE_FILES "src/setup_ble.c")
+
+list(APPEND SOURCE_FILES "src/init.c")
+list(APPEND SOURCE_FILES "src/millis.cpp")
+list(APPEND SOURCE_FILES "src/main.cpp")
 ##############################################################################
 # EXECUTABLES
 ##############################################################################
