@@ -68,12 +68,16 @@
 #ifndef BLE_LBS_H__
 #define BLE_LBS_H__
 
-#include "nrf_log.h"
+extern "C" {
+    #include "nrf_log.h"
+    #include "ble.h"
+    #include "ble_srv_common.h"
+    #include "nrf_sdh_ble.h"
+}
+
 #include <stdint.h>
 #include <stdbool.h>
-#include "ble.h"
-#include "ble_srv_common.h"
-#include "nrf_sdh_ble.h"
+#include "UUIDS.hpp"
 
 #ifdef __cplusplus
 extern "C" {

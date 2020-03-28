@@ -1,4 +1,4 @@
-#include "setup_ble.h"
+#include "setup_ble.hpp"
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -309,8 +309,8 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             NRF_LOG_DEBUG("PHY update request.");
             ble_gap_phys_t const phys =
             {
-                .rx_phys = BLE_GAP_PHY_AUTO,
-                .tx_phys = BLE_GAP_PHY_AUTO,
+                BLE_GAP_PHY_AUTO, //rx_phys
+                BLE_GAP_PHY_AUTO, //tx_phys
             };
             err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
             APP_ERROR_CHECK(err_code);

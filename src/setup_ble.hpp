@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEST
+#define TEST
 
 /**
  * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
@@ -45,31 +46,34 @@
  * This file contains the source code for a sample server application using the LED Button service.
  */
 
-#include <stdint.h>
-#include <string.h>
-#include "nordic_common.h"
-#include "nrf.h"
-#include "app_error.h"
-#include "ble.h"
-#include "ble_err.h"
-#include "ble_hci.h"
-#include "ble_srv_common.h"
-#include "ble_advdata.h"
-#include "ble_conn_params.h"
-#include "nrf_sdh.h"
-#include "nrf_sdh_ble.h"
-#include "boards.h"
-#include "app_timer.h"
-#include "app_button.h"
-#include "service/init_service.h"
-#include "nrf_ble_gatt.h"
-#include "nrf_ble_qwr.h"
-#include "nrf_pwr_mgmt.h"
+extern "C" {
+    #include <stdint.h>
+    #include <string.h>
+    #include "nordic_common.h"
+    #include "nrf.h"
+    #include "app_error.h"
+    #include "ble.h"
+    #include "ble_err.h"
+    #include "ble_hci.h"
+    #include "ble_srv_common.h"
+    #include "ble_advdata.h"
+    #include "ble_conn_params.h"
+    #include "nrf_sdh.h"
+    #include "nrf_sdh_ble.h"
+    #include "boards.h"
+    #include "app_timer.h"
+    #include "app_button.h"
+    #include "nrf_ble_gatt.h"
+    #include "nrf_ble_qwr.h"
+    #include "nrf_pwr_mgmt.h"
 
-#include "nrf_strerror.h"
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
+    #include "nrf_strerror.h"
+    #include "nrf_log.h"
+    #include "nrf_log_ctrl.h"
+    #include "nrf_log_default_backends.h"
+}
+
+#include "service/init_service.hpp"
 
 #define ADVERTISING_LED                 BSP_BOARD_LED_0                         /**< Is on when device is advertising. */
 #define CONNECTED_LED                   BSP_BOARD_LED_1                         /**< Is on when device has connected. */
@@ -234,3 +238,5 @@ void power_management_init(void);
  * @details If there is no pending log operation, then sleep until next the next event occurs.
  */
 void idle_state_handle(void);
+
+#endif

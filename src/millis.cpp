@@ -20,6 +20,11 @@ static uint32_t ticks_to_millis(uint32_t ticks){
     return (uint32_t)msec;
 }
 
+static uint32_t ticks_to_micros(uint32_t ticks){
+    uint64_t msec = ticks*2/APP_TIMER_CLOCK_FREQ;
+    return (uint32_t)msec;
+}
+
 void millis_init(){
     ret_code_t err_code;
     err_code = app_timer_init();
@@ -39,7 +44,28 @@ void millis_init(){
     APP_ERROR_CHECK(err_code);
 }
 
+uint32_t ticks(){
+    return app_timer_cnt_get();
+}
+
+uint32_t micros(){
+    auto ticks = app_timer_cnt_get();
+    return ticks_to_micros(ticks);
+}
+
 uint32_t millis(){
     auto ticks = app_timer_cnt_get();
     return ticks_to_millis(ticks);
+}
+
+uint32_t ticks_max(){
+    return (1 << 24);
+}
+
+uint32_t micros_max(){
+    return ticks_to_micros(ticks_max());
+}
+
+uint32_t millis_max(){
+    return ticks_to_millis(ticks_max());
 }

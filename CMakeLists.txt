@@ -135,8 +135,9 @@ include_directories(
 
 #list(APPEND SOURCE_FILES "src/service/slow_data.cpp")
 #list(APPEND SOURCE_FILES "src/service/package.cpp")
-list(APPEND SOURCE_FILES "src/service/init_service.c")
-list(APPEND SOURCE_FILES "src/setup_ble.c")
+list(APPEND SOURCE_FILES "src/service/authentication.cpp")
+list(APPEND SOURCE_FILES "src/service/init_service.cpp")
+list(APPEND SOURCE_FILES "src/setup_ble.cpp")
 
 list(APPEND SOURCE_FILES "src/init.c")
 list(APPEND SOURCE_FILES "src/millis.cpp")
