@@ -36,7 +36,6 @@ void millis_init(){
     NRF_LOG_INFO("2.");
     APP_ERROR_CHECK(err_code);
 
-    uint32_t timeout = 1000;
     err_code = app_timer_start(MILLIS_TIMER_ID, 
         1000, NULL);
         //APP_TIMER_TICKS(timeout), NULL);

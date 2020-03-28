@@ -17,15 +17,15 @@ int main(void) {
     timers_init();
     millis_init();
     // buttons_init();
-    power_management_init();
+    /*power_management_init();
     ble_stack_init();
     gap_params_init();
     gatt_init();
     services_init();
     advertising_init();
-    conn_params_init();
+    conn_params_init();*/
 
-    authentication::setup();
+    //authentication::setup();
     //queue.setup();
     //slow_measurements.setup();
     //fast_measurments.setup();
@@ -33,7 +33,7 @@ int main(void) {
     // Start execution.
     NRF_LOG_INFO("Blinky example started.");
     NRF_LOG_FLUSH();
-    advertising_start();
+    //advertising_start();
 
     NRF_LOG_INFO("flash %d", ticks_max());
     // Enter main loop.

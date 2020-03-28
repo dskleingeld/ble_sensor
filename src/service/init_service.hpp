@@ -70,29 +70,12 @@
 
 extern "C" {
     #include "nrf_log.h"
+    #include <stdint.h>
+    #include <stdbool.h>
     #include "ble.h"
     #include "ble_srv_common.h"
     #include "nrf_sdh_ble.h"
 }
-
-#include <stdint.h>
-#include <stdbool.h>
-#include "UUIDS.hpp"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**@brief   Macro for defining a ble_lbs instance.
- *
- * @param   _name   Name of the instance.
- * @hideinitializer
- */
-#define BLE_LBS_DEF(_name)                                                      \
-ble_lbs_t _name;                                                         \
-NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             \
-                     BLE_LBS_BLE_OBSERVER_PRIO,                                 \
-                     ble_lbs_on_ble_evt, &_name)
 
 #define LBS_UUID_BASE        {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, \
                               0xDE, 0xEF, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00}
@@ -156,10 +139,6 @@ void ble_lbs_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
  */
 uint32_t ble_lbs_on_button_change(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t button_state);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // BLE_LBS_H__
 

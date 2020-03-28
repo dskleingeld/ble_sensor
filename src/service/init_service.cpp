@@ -37,7 +37,6 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 extern "C" {
     #include "sdk_common.h"
     #include "ble_srv_common.h"
@@ -80,7 +79,7 @@ void ble_lbs_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context)
     }
 }
 
-//TODO use for custom services
+
 uint32_t ble_lbs_init(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
 {
     uint32_t              err_code;
@@ -91,7 +90,7 @@ uint32_t ble_lbs_init(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
     p_lbs->led_write_handler = p_lbs_init->led_write_handler;
 
     // Add service.
-    ble_uuid128_t base_uuid = {*uuid128_service};
+    ble_uuid128_t base_uuid = {LBS_UUID_BASE};
     err_code = sd_ble_uuid_vs_add(&base_uuid, &p_lbs->uuid_type);
     VERIFY_SUCCESS(err_code);
 

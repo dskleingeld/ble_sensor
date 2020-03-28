@@ -7,7 +7,7 @@
 void timers_init(void)
 {
     // Initialize timer module, making it use the scheduler
-    auto err_code = app_timer_init();
+    ret_code_t err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 }
 

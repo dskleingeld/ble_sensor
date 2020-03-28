@@ -1,5 +1,5 @@
-#ifndef TEST
-#define TEST
+#ifndef TEST2
+#define TEST2
 
 /**
  * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
@@ -102,8 +102,9 @@ extern "C" {
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
+//ble_lbs_t m_lbs;
 
-BLE_LBS_DEF(m_lbs);                                                             /**< LED Button Service instance. */
+//BLE_LBS_DEF(m_lbs);                                                             /**< LED Button Service instance. */
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
 
@@ -120,12 +121,6 @@ NRF_BLE_QWR_DEF(m_qwr);                                                         
  */
 void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name);
 
-
-/**@brief Function for the LEDs initialization.
- *
- * @details Initializes all LEDs used by the application.
- */
-static void leds_init(void);
 
 /**@brief Function for the GAP initialization.
  *
@@ -156,14 +151,6 @@ void advertising_init(void);
  * @param[in]   nrf_error   Error code containing information about what went wrong.
  */
 static void nrf_qwr_error_handler(uint32_t nrf_error);
-
-
-/**@brief Function for handling write events to the LED characteristic.
- *
- * @param[in] p_lbs     Instance of LED Button Service to which the write applies.
- * @param[in] led_state Written/desired state of the LED.
- */
-static void led_write_handler(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t led_state);
 
 
 /**@brief Function for initializing services that will be used by the application.
@@ -213,19 +200,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context);
  * @details Initializes the SoftDevice and the BLE event interrupt.
  */
 void ble_stack_init(void);
-
-
-/**@brief Function for handling events from the button handler module.
- *
- * @param[in] pin_no        The pin that the event applies to.
- * @param[in] button_action The button action (press/release).
- */
-static void button_event_handler(uint8_t pin_no, uint8_t button_action);
-
-
-/**@brief Function for initializing the button handler module.
- */
-static void buttons_init(void);
 
 
 /**@brief Function for initializing power management.
