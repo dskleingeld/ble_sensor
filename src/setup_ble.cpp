@@ -1,7 +1,8 @@
 #include "setup_ble.hpp"
+#include <cstdint>
 
 ble_lbs_t m_lbs; 
-NRF_SDH_BLE_OBSERVER(m_lbs_obs, BLE_LBS_BLE_OBSERVER_PRIO, ble_lbs_on_ble_evt, &m_lbs);
+NRF_SDH_BLE_OBSERVER(m_lbs_obs, BLE_LBS_BLE_OBSERVER_PRIO, Service::on_ble_evt, &m_lbs);
 
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
@@ -36,7 +37,7 @@ static ble_gap_adv_data_t m_adv_data =
  * @param[in] line_num    Line number of the failing ASSERT call.
  * @param[in] p_file_name File name of the failing ASSERT call.
  */
-void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
+void assert_nrf_callback(uint16_t line_num, const uint8_t* p_file_name)
 {
     app_error_handler(DEAD_BEEF, line_num, p_file_name);
 }
@@ -56,8 +57,8 @@ void gap_params_init(void)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
     err_code = sd_ble_gap_device_name_set(&sec_mode,
-                                          (const uint8_t *)DEVICE_NAME,
-                                          strlen(DEVICE_NAME));
+                                          (const uint8_t*)config::ble_device_name,
+                                          strlen(config::ble_device_name));
     APP_ERROR_CHECK(err_code);
 
     memset(&gap_conn_params, 0, sizeof(gap_conn_params));
@@ -147,25 +148,15 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
  * @param[in] p_lbs     Instance of LED Button Service to which the write applies.
  * @param[in] led_state Written/desired state of the LED.
  */
-static void led_write_handler(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t led_state)
+static void led_write_handler(uint16_t conn_handle, ble_lbs_t* p_lbs, uint8_t led_state)
 {
-    if (led_state)
-    {
-        bsp_board_led_on(LEDBUTTON_LED);
-        NRF_LOG_INFO("Received LED ON!");
-    }
-    else
-    {
-        bsp_board_led_off(LEDBUTTON_LED);
-        NRF_LOG_INFO("Received LED OFF!");
-    }
+    NRF_LOG_INFO("would normally turn on off led");
 }
 
 
 /**@brief Function for initializing services that will be used by the application.
  */
-void services_init(void)
-{
+ble_lbs_t services_init() {
     ret_code_t         err_code;
     ble_lbs_init_t     init     = {0};
     nrf_ble_qwr_init_t qwr_init = {0};
@@ -178,13 +169,7 @@ void services_init(void)
     APP_ERROR_CHECK(err_code);
 
     // Initialize LBS.
-    init.led_write_handler = led_write_handler;
-
-    err_code = ble_lbs_init(&m_lbs, &init);
-    NRF_LOG_INFO("Test2");
-    NRF_LOG_ERROR(nrf_strerror_find(err_code));
-    APP_ERROR_CHECK(err_code);
-    NRF_LOG_INFO("Test3");
+    return Service::init(&m_lbs);
 }
 
 
@@ -199,7 +184,7 @@ void services_init(void)
  *
  * @param[in] p_evt  Event received from the Connection Parameters Module.
  */
-static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
+static void on_conn_params_evt(ble_conn_params_evt_t* p_evt)
 {
     ret_code_t err_code;
 
@@ -262,16 +247,13 @@ void advertising_start(void)
  * @param[in]   p_ble_evt   Bluetooth stack event.
  * @param[in]   p_context   Unused.
  */
-static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
-{
+static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context) {
     ret_code_t err_code;
 
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
             NRF_LOG_INFO("Connected");
-            bsp_board_led_on(CONNECTED_LED);
-            bsp_board_led_off(ADVERTISING_LED);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
             APP_ERROR_CHECK(err_code);
@@ -281,7 +263,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("Disconnected");
-            bsp_board_led_off(CONNECTED_LED);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
             err_code = app_button_disable();
             APP_ERROR_CHECK(err_code);
@@ -342,8 +323,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
  *
  * @details Initializes the SoftDevice and the BLE event interrupt.
  */
-void ble_stack_init(void)
-{
+void ble_stack_init(void) {
     ret_code_t err_code;
 
     err_code = nrf_sdh_enable_request();
@@ -360,14 +340,14 @@ void ble_stack_init(void)
     APP_ERROR_CHECK(err_code);
 
     // Register a handler for BLE events.
-    NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
+    constexpr int priority_level = 3;
+    NRF_SDH_BLE_OBSERVER(m_ble_observer, priority_level, ble_evt_handler, NULL);
 }
 
 
 /**@brief Function for initializing power management.
  */
-void power_management_init(void)
-{
+void power_management_init(void) {
     ret_code_t err_code;
     err_code = nrf_pwr_mgmt_init();
     APP_ERROR_CHECK(err_code);
@@ -378,8 +358,7 @@ void power_management_init(void)
  *
  * @details If there is no pending log operation, then sleep until next the next event occurs.
  */
-void idle_state_handle(void)
-{
+void idle_state_handle(void) {
     if (NRF_LOG_PROCESS() == false)
     {
         //send cpu to sleep until an event happens

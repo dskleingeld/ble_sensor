@@ -1,7 +1,7 @@
 #include "authentication.hpp"
 
-//BLECharacteristic auth_challange = BLECharacteristic(auth_challange_uuid);
-//BLECharacteristic auth_response = BLECharacteristic(auth_response_uuid);
+ble_gatts_char_handles_t auth_challange;
+ble_gatts_char_handles_t auth_response;
 
 namespace authentication{
 
@@ -12,24 +12,42 @@ namespace authentication{
     //1 second after connection an unauthenticated connection is dropped, 
     //this times is started in connect callback and responsible for calling disconnect function
 
-    void setup(){
-        /* // Calling .begin() on a BLECharacteristic will cause it to be added to the last BLEService that
-        // was 'begin()'ed!
-        auth_challange.setProperties(CHR_PROPS_READ);
-        auth_challange.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS); //everybody may read, nobody write
-        auth_challange.setFixedLen(16); //128 bit nonce that is readable
-        //init challange 
+    void setup(uint16_t service_handle, uint8_t uuid_type){
+        uint32_t err_code;
+
         authentication::randomise_challange();
-        auth_challange.begin();
-        auth_challange.write(&authentication::challange[0], 16); // Use .write for init data
+        ble_add_char_params_t auth_challange_params;
+        memset(&auth_challange_params, 0, sizeof(auth_challange_params));
+        auth_challange_params.uuid              = uuid16_auth_challange;
+        auth_challange_params.uuid_type         = uuid_type;
+        auth_challange_params.init_len          = sizeof(challange);
+        auth_challange_params.max_len           = sizeof(challange);
+        auth_challange_params.char_props.read   = 1;
+        //auth_challange_params.char_props.notify = 0;
+        auth_challange_params.read_access       = SEC_OPEN;
+        auth_challange_params.p_init_value      = challange;
+        err_code = characteristic_add(service_handle, &auth_challange_params, &auth_challange);
+        APP_ERROR_CHECK(err_code);
+        //TODO set data
 
-        auth_response.setProperties(CHR_PROPS_WRITE); //write then get response
-        auth_response.setPermission(SECMODE_NO_ACCESS, SECMODE_OPEN); //everybody may read, nobody write
-        auth_response.setFixedLen(16); // 128 bit nonce encrypted with pre shared key
-        auth_response.setWriteCallback(authentication::check_response); //TODO change challange
-        auth_response.begin();
 
-        authentication::auto_disconnect_timer.begin(2000, authentication::disconnect_unauthenticated); */
+        ble_add_char_params_t auth_response_params;
+        memset(&auth_response_params, 0, sizeof(auth_response_params));
+        auth_response_params.uuid              = uuid16_auth_response;
+        auth_response_params.uuid_type         = uuid_type;
+        auth_response_params.init_len          = sizeof(uint8_t); //TODO
+        auth_response_params.max_len           = sizeof(uint8_t); //TODO
+        auth_response_params.char_props.read   = 0;
+        auth_response_params.char_props.write  = 1;
+
+        auth_response_params.read_access       = SEC_NO_ACCESS;
+        auth_response_params.write_access      = SEC_OPEN;     
+        err_code = characteristic_add(service_handle, &auth_response_params, &auth_response);
+        APP_ERROR_CHECK(err_code);
+
+        //TODO:
+        //auth_response.setWriteCallback(authentication::check_response); //TODO change challange
+        //authentication::auto_disconnect_timer.begin(2000, authentication::disconnect_unauthenticated); */
     }
 
     void reset_auth(){
@@ -48,7 +66,7 @@ namespace authentication{
     /**
      * @brief Uses the RNG to write a 16-byte nonce to a buffer
      *
-     * @param[in]    p_buf    An array of length 16
+     * @param[in] p_buf An array of length 16
      */
     static void generate_16_byte_nonce(uint8_t * p_buf) {
         uint8_t i         = 0;

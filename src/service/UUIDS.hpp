@@ -6,13 +6,10 @@
 uint8_t const uuid128_service[16] =
 {131, 20, 153, 220, 231, 245, 91, 152, 153, 21, 183, 27, 175, 191, 112, 147};
 
-uint8_t const uuid128_auth_challange[16] = 
-{132, 20, 153, 220, 231, 245, 91, 152, 153, 21, 183, 27, 175, 191, 112, 147};
-uint8_t const uuid128_auth_response[16] = 
-{133, 20, 153, 220, 231, 245, 91, 152, 153, 21, 183, 27, 175, 191, 112, 147};
+uint16_t const uuid16_auth_challange = 132;
+uint16_t const uuid16_auth_response = 133;
 
-uint8_t const uuid128_nonce[16] = 
-{134, 20, 153, 220, 231, 245, 91, 152, 153, 21, 183, 27, 175, 191, 112, 147};
+uint16_t const uuid16_nonce = 134;
 
 uint8_t const uuid128_hmac[16] = 
 {135, 20, 153, 220, 231, 245, 91, 152, 153, 21, 183, 27, 175, 191, 112, 147};

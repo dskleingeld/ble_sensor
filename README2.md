@@ -26,3 +26,5 @@ NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE increased to 496
 sudo bluetoothctl
     scan on
     connect C6:46:56:AC:2C:4C
+    menu gatt
+    list-attributes C6:46:56:AC:2C:4C

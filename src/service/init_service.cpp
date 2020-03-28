@@ -40,6 +40,7 @@
 extern "C" {
     #include "sdk_common.h"
     #include "ble_srv_common.h"
+    #include "app_error.h"
 }
 
 #include "init_service.hpp"
@@ -50,102 +51,77 @@ extern "C" {
  * @param[in] p_lbs      LED Button Service structure.
  * @param[in] p_ble_evt  Event received from the BLE stack.
  */
-static void on_write(ble_lbs_t * p_lbs, ble_evt_t const * p_ble_evt)
-{
-    ble_gatts_evt_write_t const * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+static void on_write(ble_lbs_t* p_lbs, ble_evt_t const* p_ble_evt){
+    /*ble_gatts_evt_write_t const * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
     if (   (p_evt_write->handle == p_lbs->led_char_handles.value_handle)
         && (p_evt_write->len == 1)
         && (p_lbs->led_write_handler != NULL))
     {
         p_lbs->led_write_handler(p_ble_evt->evt.gap_evt.conn_handle, p_lbs, p_evt_write->data[0]);
-    }
+    }*/
 }
 
+//enum BLE_GATTS_EVTS here for reference, do not uncomment
+//{
+//  BLE_GATTS_EVT_WRITE = BLE_GATTS_EVT_BASE, /**< Write operation performed.                                           \n See @ref ble_gatts_evt_write_t.                 */
+//  BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST,       /**< Read/Write Authorization request.                                    \n Reply with @ref sd_ble_gatts_rw_authorize_reply. \n See @ref ble_gatts_evt_rw_authorize_request_t. */
+//  BLE_GATTS_EVT_SYS_ATTR_MISSING,           /**< A persistent system attribute access is pending.                     \n Respond with @ref sd_ble_gatts_sys_attr_set.     \n See @ref ble_gatts_evt_sys_attr_missing_t.     */
+//  BLE_GATTS_EVT_HVC,                        /**< Handle Value Confirmation.                                           \n See @ref ble_gatts_evt_hvc_t.                   */
+//  BLE_GATTS_EVT_SC_CONFIRM,                 /**< Service Changed Confirmation.                                        \n No additional event structure applies.          */
+//  BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST,       /**< Exchange MTU Request.                                                \n Reply with @ref sd_ble_gatts_exchange_mtu_reply. \n See @ref ble_gatts_evt_exchange_mtu_request_t. */
+//  BLE_GATTS_EVT_TIMEOUT,                    /**< Peer failed to respond to an ATT request in time.                    \n See @ref ble_gatts_evt_timeout_t.               */
+//  BLE_GATTS_EVT_HVN_TX_COMPLETE             /**< Handle Value Notification transmission complete.                     \n See @ref ble_gatts_evt_hvn_tx_complete_t.       */
+//};
 
-void ble_lbs_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context)
-{
-    ble_lbs_t * p_lbs = (ble_lbs_t *)p_context;
-
-    switch (p_ble_evt->header.evt_id)
+namespace Service {
+    void on_ble_evt(ble_evt_t const* p_ble_evt, void* p_context)
     {
-        case BLE_GATTS_EVT_WRITE:
-            on_write(p_lbs, p_ble_evt);
-            break;
+        ble_lbs_t * p_lbs = (ble_lbs_t *)p_context;
 
-        default:
-            // No implementation needed.
-            break;
+        switch (p_ble_evt->header.evt_id)
+        {
+            case BLE_GATTS_EVT_WRITE:
+                on_write(p_lbs, p_ble_evt);
+                break;
+
+            default:
+                // No implementation needed.
+                break;
+        }
     }
-}
 
 
-uint32_t ble_lbs_init(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
-{
-    uint32_t              err_code;
-    ble_uuid_t            ble_uuid;
-    ble_add_char_params_t add_char_params;
+    ble_lbs_t init(ble_lbs_t* p_lbs) {
+        uint32_t err_code;
 
-    // Initialize service structure.
-    p_lbs->led_write_handler = p_lbs_init->led_write_handler;
+        // Add service.
+        ble_uuid128_t base_uuid = {LBS_UUID_BASE};
+        err_code = sd_ble_uuid_vs_add(&base_uuid, &p_lbs->uuid_type);
+        APP_ERROR_CHECK(err_code);
 
-    // Add service.
-    ble_uuid128_t base_uuid = {LBS_UUID_BASE};
-    err_code = sd_ble_uuid_vs_add(&base_uuid, &p_lbs->uuid_type);
-    VERIFY_SUCCESS(err_code);
+        ble_uuid_t ble_uuid;
+        ble_uuid.type = p_lbs->uuid_type;
+        ble_uuid.uuid = LBS_UUID_SERVICE;
 
-    ble_uuid.type = p_lbs->uuid_type;
-    ble_uuid.uuid = LBS_UUID_SERVICE;
+        err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &p_lbs->service_handle);
+        APP_ERROR_CHECK(err_code);
 
-    err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &p_lbs->service_handle);
-    VERIFY_SUCCESS(err_code);
+        return *p_lbs;
+    }
 
-    // Add Button characteristic.
-    memset(&add_char_params, 0, sizeof(add_char_params));
-    add_char_params.uuid              = LBS_UUID_BUTTON_CHAR;
-    add_char_params.uuid_type         = p_lbs->uuid_type;
-    add_char_params.init_len          = sizeof(uint8_t);
-    add_char_params.max_len           = sizeof(uint8_t);
-    add_char_params.char_props.read   = 1;
-    add_char_params.char_props.notify = 1;
 
-    add_char_params.read_access       = SEC_OPEN;
-    add_char_params.cccd_write_access = SEC_OPEN;
-
-    err_code = characteristic_add(p_lbs->service_handle,
-                                  &add_char_params,
-                                  &p_lbs->button_char_handles);
-    if (err_code != NRF_SUCCESS)
+    uint32_t on_button_change(uint16_t conn_handle, ble_lbs_t* p_lbs, uint8_t button_state)
     {
-        return err_code;
+        ble_gatts_hvx_params_t params;
+        uint16_t len = sizeof(button_state);
+
+        memset(&params, 0, sizeof(params));
+        params.type   = BLE_GATT_HVX_NOTIFICATION;
+        //params.handle = p_lbs->button_char_handles.value_handle; //TODO change to our things
+        params.p_data = &button_state;
+        params.p_len  = &len;
+
+        return sd_ble_gatts_hvx(conn_handle, &params);
     }
-
-    // Add LED characteristic.
-    memset(&add_char_params, 0, sizeof(add_char_params));
-    add_char_params.uuid             = LBS_UUID_LED_CHAR;
-    add_char_params.uuid_type        = p_lbs->uuid_type;
-    add_char_params.init_len         = sizeof(uint8_t);
-    add_char_params.max_len          = sizeof(uint8_t);
-    add_char_params.char_props.read  = 1;
-    add_char_params.char_props.write = 1;
-
-    add_char_params.read_access  = SEC_OPEN;
-    add_char_params.write_access = SEC_OPEN;
-
-    return characteristic_add(p_lbs->service_handle, &add_char_params, &p_lbs->led_char_handles);
-}
-
-
-uint32_t ble_lbs_on_button_change(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t button_state)
-{
-    ble_gatts_hvx_params_t params;
-    uint16_t len = sizeof(button_state);
-
-    memset(&params, 0, sizeof(params));
-    params.type   = BLE_GATT_HVX_NOTIFICATION;
-    params.handle = p_lbs->button_char_handles.value_handle;
-    params.p_data = &button_state;
-    params.p_len  = &len;
-
-    return sd_ble_gatts_hvx(conn_handle, &params);
 }

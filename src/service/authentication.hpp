@@ -5,6 +5,7 @@ extern "C" {
     #include "nrf_soc.h"
     #include "nrf_delay.h"
     #include "app_error.h"
+    #include "ble_srv_common.h"
 }
 
 #include <cstring>
@@ -15,11 +16,8 @@ extern "C" {
 #define RNG_BYTE_WAIT_US       (124UL)
 #define ECB_KEY_LEN            (16UL)
 
-//static BLEUuid auth_challange_uuid(uuid128_auth_challange); //static, lives for program duration
-//static BLEUuid auth_response_uuid(uuid128_auth_response);
-
-//extern BLECharacteristic auth_challange;
-//extern BLECharacteristic auth_response;
+extern ble_gatts_char_handles_t auth_challange;
+extern ble_gatts_char_handles_t auth_response;
 
 namespace authentication {
     //needs to be declared extern as its defined in the implementation file
@@ -29,7 +27,7 @@ namespace authentication {
     extern uint8_t unauthenticated_conn_hdl;
     //extern SoftwareTimer auto_disconnect_timer; 
 
-    void setup();
+    void setup(uint16_t service_handle, uint8_t uuid_type);
     void reset_auth();
     //void disconnect_unauthenticated(TimerHandle_t xTimerID);
     void randomise_challange();
