@@ -117,14 +117,14 @@ add_custom_target(FLASH_SOFTDEVICE
 ##############################################################################
 # NEW SDK LIBRARIES 
 ##############################################################################
-        include_directories(                
-                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs"               
-         
-        )
-
-        list(APPEND SDK_SOURCE_FILES              
-                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs/ble_lbs.c"               
-        )
+#        include_directories(                
+#                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs"               
+#         
+#        )
+#
+#        list(APPEND SDK_SOURCE_FILES              
+#                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs/ble_lbs.c"               
+#        )
 
 ##############################################################################
 # SOURCE CODE
@@ -138,7 +138,7 @@ include_directories(
 
 #list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
 #list(APPEND SOURCE_FILES "src/init_ble.c")
-#list(APPEND SOURCE_FILES "src/log.c")
+list(APPEND SOURCE_FILES "src/service_if.c")
 list(APPEND SOURCE_FILES "src/main.c")
 ##############################################################################
 # EXECUTABLES

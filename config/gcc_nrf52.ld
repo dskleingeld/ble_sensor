@@ -32,7 +32,7 @@ GROUP(-lgcc -lc -lnosys)
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00026000, LENGTH = 0x50000
-  RAM (rwx) : ORIGIN = 0x20001ED0, LENGTH = 0xE130
+  RAM (rwx) : ORIGIN = 0x200022F0, LENGTH = 0xDD10
 }
 
 /*without any softdevice*/

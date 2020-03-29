@@ -36,3 +36,6 @@ reset: mon reset init
 mon reset halt
 load info: load
 
+# debugging bluetooth
+use sudo btmon to monitor bluetooth traffic
+
