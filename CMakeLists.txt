@@ -30,6 +30,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/nRF5x.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/arm-gcc-toolchain.cmake")
 
+set(CMAKE_BUILD_TYPE Debug)
+
 ##############################################################################
 # nRF5x setup (Comment/Uncomment libraries to use)
 ##############################################################################
@@ -115,13 +117,14 @@ add_custom_target(FLASH_SOFTDEVICE
 ##############################################################################
 # NEW SDK LIBRARIES 
 ##############################################################################
-# include_directories(                
-#                 "${NRF5_SDK_PATH}/components/ble/nrf_ble_scan"               
-#         )
+        include_directories(                
+                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs"               
+         
+        )
 
-#         list(APPEND SDK_SOURCE_FILES              
-#                 "${NRF5_SDK_PATH}/components/ble/nrf_ble_scan/nrf_ble_scan.c"               
-#         )
+        list(APPEND SDK_SOURCE_FILES              
+                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs/ble_lbs.c"               
+        )
 
 ##############################################################################
 # SOURCE CODE
@@ -130,12 +133,12 @@ add_custom_target(FLASH_SOFTDEVICE
 # own libs
 include_directories(
         src, 
-        src/service
+#        src/service
 )
 
-list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
-list(APPEND SOURCE_FILES "src/init_ble.c")
-list(APPEND SOURCE_FILES "src/log.c")
+#list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
+#list(APPEND SOURCE_FILES "src/init_ble.c")
+#list(APPEND SOURCE_FILES "src/log.c")
 list(APPEND SOURCE_FILES "src/main.c")
 ##############################################################################
 # EXECUTABLES

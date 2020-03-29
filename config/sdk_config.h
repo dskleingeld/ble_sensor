@@ -50,7 +50,9 @@
 
 //==========================================================
 // <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
- 
+
+#define BLE_LBS_ENABLED 1
+
 
 #ifndef BLE_ADVERTISING_ENABLED
 #define BLE_ADVERTISING_ENABLED 1
