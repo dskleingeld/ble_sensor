@@ -79,9 +79,9 @@ extern "C" {
     #include "nrf_log.h"
     #include "nrf_log_ctrl.h"
     #include "nrf_log_default_backends.h"
-    #include "ble_config.h"
 }
 
+#include "ble_config.hpp"
 #include "service_if.hpp"
 
 NRF_BLE_QWR_DEF(m_qwr);                                                             /**< Queued Writes structure.*/
@@ -205,7 +205,7 @@ void services_init()
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
-    err_code = bluetooth_init();
+    err_code = service::bluetooth_init(); //TODO re-enable
     APP_ERROR_CHECK(err_code);
 }
 
@@ -379,12 +379,19 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             APP_ERROR_CHECK(err_code);
             break;
 
+
+        /*case BLE_GATTS_EVT_SYS_ATTR_MISSING: added but didnt solve problem
+            err_code = sd_ble_gatts_sys_attr_set(p_ble_evt->evt.gap_evt.conn_handle, 
+                NULL, 0, 0);
+            APP_ERROR_CHECK(err_code);
+            break;*/
+
         default:
             // No implementation needed.
             break;
     }
 
-    bluetooth_on_ble_evt(p_ble_evt);
+    service::bluetooth_on_ble_evt(p_ble_evt);
 }
 
 

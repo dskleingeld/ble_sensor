@@ -1,8 +1,10 @@
 extern "C" {
     #include "nrf_log.h"
+    #include "nrf_delay.h"
 }
 
 #include "ble.hpp"
+#include "service_if.hpp"
 
 int main() {
 
@@ -24,8 +26,11 @@ int main() {
     advertising_start();
 
     // Enter main loop.
-    for (;;)
-    {
+    uint32_t counter = 0;
+    for (;;) {
         idle_state_handle();
+        //nrf_delay_ms(1000);
+        service::test_notify((uint8_t*)&counter);
+        counter+=1;
     }
 }
