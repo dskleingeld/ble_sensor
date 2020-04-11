@@ -29,7 +29,7 @@ int main() {
     uint32_t counter = 0;
     for (;;) {
         idle_state_handle();
-        //nrf_delay_ms(1000);
+        nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         service::test_notify((uint8_t*)&counter);
         counter+=1;
     }

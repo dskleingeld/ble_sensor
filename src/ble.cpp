@@ -371,7 +371,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             APP_ERROR_CHECK(err_code);
             break;
 
-        case BLE_GATTS_EVT_TIMEOUT:
+        case BLE_GATTS_EVT_TIMEOUT: //NOTE: GATTS (S != C)
             // Disconnect on GATT Server timeout event.
             NRF_LOG_DEBUG("GATT Server Timeout.");
             err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,

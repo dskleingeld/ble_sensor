@@ -14,6 +14,7 @@ namespace link_test {
     ble_gatts_char_handles_t handle;
     constexpr uint16_t uuid = 133;
     uint8_t data[20];
+    bool notify_enabled = false;
 }
 
 namespace service {
@@ -86,14 +87,35 @@ namespace service {
         return NRF_SUCCESS;
     }
 
+    void handle_write(ble_evt_t const* p_ble_evt){
+        auto p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+        auto char_written_to = p_evt_write->handle;
+        
+            // Custom value CCCD written to and value is right length, i.e 2 bytes.
+        if (char_written_to == link_test::handle.cccd_handle 
+            && p_evt_write->len == 2) {
+            
+            if(ble_srv_is_notification_enabled(p_evt_write->data)){
+                link_test::notify_enabled = true;
+            } else {
+                link_test::notify_enabled = false;
+            }
+        }
+    }
+
     // Generic handler function for ble events will call each service's individual on_ble_evt function
     void bluetooth_on_ble_evt(ble_evt_t const* p_ble_evt) {
+        NRF_LOG_INFO("got event")
         switch (p_ble_evt->header.evt_id){
             case BLE_GAP_EVT_CONNECTED:
                 service::connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
                 break;
             case BLE_GAP_EVT_DISCONNECTED:
                 service::connection_handle = BLE_CONN_HANDLE_INVALID;
+                link_test::notify_enabled = false;
+                break;
+            case BLE_GATTS_EVT_WRITE:
+                handle_write(p_ble_evt);
                 break;
             default:
                 // No implementation needed.
@@ -117,10 +139,12 @@ namespace service {
         params.p_data = data;
         params.p_len  = &len;
         
-        if(connected()){
+        //https://github.com/NordicPlayground/nRF5x-custom-ble-service-tutorial
+
+        if(link_test::notify_enabled){
             auto err_code = sd_ble_gatts_hvx(service::connection_handle, &params);
             if (err_code == 13313){ // BLE_ERROR_GATTS_SYS_ATTR_MISSING
-                NRF_LOG_WARNING("ble gatt sys attr missing, this error will appear until a client enables notify");
+                //NRF_LOG_WARNING("ble gatt sys attr missing, this error will appear until a client enables notify");
                 return NRF_SUCCESS;
             }
             //NRF_LOG_ERROR(nrf_strerror_get(err_code));
