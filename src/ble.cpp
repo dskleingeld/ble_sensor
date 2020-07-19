@@ -205,7 +205,7 @@ void services_init()
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
-    err_code = service::bluetooth_init(); //TODO re-enable
+    err_code = service::bluetooth_init();
     APP_ERROR_CHECK(err_code);
 }
 

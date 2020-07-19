@@ -25,6 +25,7 @@ int main() {
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
     advertising_start();
+    NRF_LOG_INFO("version 1.0");
 
     // Enter main loop.
     uint32_t counter = 0;
@@ -34,11 +35,10 @@ int main() {
         idle_state_handle(); 
         //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         
-        while(true){
+        /*while(true){
             auto success = service::test_notify((uint8_t*)&counter);
             if(success){break;}
-        }
-
+        }*/
         counter+=1;
         /*if (counter%20 == 0) {
             NRF_LOG_INFO("still alive");
