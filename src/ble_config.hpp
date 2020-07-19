@@ -1,5 +1,5 @@
-#define DEVICE_NAME                      "Nordic_BDS"                               /**< Name of device. Will be included in the advertising data. */
-#define MANUFACTURER_NAME                "NordicSemiconductor"                      /**< Manufacturer. Will be passed to Device Information Service. */
+#define DEVICE_NAME                      "ble_sensor_test"                          /**< Name of device. Will be included in the advertising data. */
+#define MANUFACTURER_NAME                "Vid"                                      /**< Manufacturer. Will be passed to Device Information Service. */
 
 #define APP_BLE_OBSERVER_PRIO            3                                          /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 #define APP_BLE_CONN_CFG_TAG             1                                          /**< A tag for the SoftDevice BLE configuration. */

@@ -60,5 +60,5 @@ namespace service {
     void bluetooth_on_ble_evt(ble_evt_t const * p_ble_evt);
 
 
-    uint32_t test_notify(uint8_t* data);
+    bool test_notify(uint8_t* data);
 }

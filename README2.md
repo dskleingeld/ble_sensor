@@ -43,5 +43,8 @@ use sudo btmon to monitor bluetooth traffic
 sudo bluetoothctl
 connect C6:46:56:AC:2C:4C
 menu gatt
-select-attribute 93700085-1bb7-1599-985b-f5e7dc99148
+select-attribute 93700085-1bb7-1599-985b-f5e7dc991483
 notify on
+
+# DEV NOTES
+seems to be crashing after some time

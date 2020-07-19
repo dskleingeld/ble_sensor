@@ -12,7 +12,7 @@ extern "C" {
 
 namespace link_test {
     ble_gatts_char_handles_t handle;
-    constexpr uint16_t uuid = 133;
+    constexpr uint16_t uuid = 42;
     uint8_t data[20];
     bool notify_enabled = false;
 }
@@ -22,7 +22,7 @@ namespace service {
     ble_uuid128_t base_uuid = {
         131, 20, 153, 220, 231, 245, 91, 
         152, 153, 21, 183, 27, 175, 191, 112, 147};
-    uint16_t service_uuid = {132};
+    uint16_t service_uuid = {0};
 
     //TODO rewrite using: https://devzone.nordicsemi.com/nordic/short-range-guides/b/bluetooth-low-energy/posts/ble-characteristics-a-beginners-tutorial
 
@@ -96,8 +96,10 @@ namespace service {
             && p_evt_write->len == 2) {
             
             if(ble_srv_is_notification_enabled(p_evt_write->data)){
+                NRF_LOG_INFO("notify enabled");
                 link_test::notify_enabled = true;
             } else {
+                NRF_LOG_INFO("notify disabled");
                 link_test::notify_enabled = false;
             }
         }
@@ -105,17 +107,23 @@ namespace service {
 
     // Generic handler function for ble events will call each service's individual on_ble_evt function
     void bluetooth_on_ble_evt(ble_evt_t const* p_ble_evt) {
-        NRF_LOG_INFO("got event")
+        //NRF_LOG_INFO("got event")
         switch (p_ble_evt->header.evt_id){
             case BLE_GAP_EVT_CONNECTED:
+                NRF_LOG_INFO("connected");
                 service::connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
                 break;
             case BLE_GAP_EVT_DISCONNECTED:
+                NRF_LOG_INFO("disconnected");
                 service::connection_handle = BLE_CONN_HANDLE_INVALID;
                 link_test::notify_enabled = false;
                 break;
             case BLE_GATTS_EVT_WRITE:
                 handle_write(p_ble_evt);
+                break;
+            case BLE_GATTS_EVT_HVN_TX_COMPLETE:
+                //auto n_completed = p_ble_evt->evt.gatts_evt.params.hvn_tx_complete.count;
+                //NRF_LOG_INFO("TX COMPLETED");
                 break;
             default:
                 // No implementation needed.
@@ -129,7 +137,7 @@ namespace service {
 
     // attribute-info 00002a05-0000-1000-8000-00805f9b34fb
     //TODO send test data here
-    uint32_t test_notify(uint8_t* data) {
+    bool test_notify(uint8_t* data) {
         ble_gatts_hvx_params_t params;
         uint16_t len = 4;
 
@@ -143,14 +151,21 @@ namespace service {
 
         if(link_test::notify_enabled){
             auto err_code = sd_ble_gatts_hvx(service::connection_handle, &params);
-            if (err_code == 13313){ // BLE_ERROR_GATTS_SYS_ATTR_MISSING
-                //NRF_LOG_WARNING("ble gatt sys attr missing, this error will appear until a client enables notify");
-                return NRF_SUCCESS;
+            switch(err_code) {
+                case NRF_ERROR_RESOURCES:
+                    return false;
+                //case BLE_ERROR_GATTS_SYS_ATTR_MISSING: //13313
+                //    return true; //no idea why we do this
+                default:
+                    break;
             }
-            //NRF_LOG_ERROR(nrf_strerror_get(err_code));
-            //NRF_LOG_ERROR("%d", err_code);
-            APP_ERROR_CHECK(err_code);
+            
+            if (err_code != 0){
+                NRF_LOG_ERROR(nrf_strerror_get(err_code));
+                NRF_LOG_ERROR("%d", err_code);
+                APP_ERROR_CHECK(err_code);
+            }
         }
-        return NRF_SUCCESS;
+        return true;
     }
 }
