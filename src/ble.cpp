@@ -152,9 +152,14 @@ void gap_params_init()
                                           strlen(DEVICE_NAME));
     APP_ERROR_CHECK(err_code);
 
-    /* YOUR_JOB: Use an appearance value matching the application's use case.
-    err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_);
-    APP_ERROR_CHECK(err_code); */
+    //set a MAC addr to prevent server side bluez from
+    //not rereading the characteristics.
+    ble_gap_addr_t address = {
+        0, //ignored
+        BLE_GAP_ADDR_TYPE_PUBLIC, 
+        {10,10,10,10,10,10}}; 
+    err_code = sd_ble_gap_addr_set(&address);
+    APP_ERROR_CHECK(err_code);
 
     memset(&gap_conn_params, 0, sizeof(gap_conn_params));
 
