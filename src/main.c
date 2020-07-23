@@ -26,18 +26,18 @@ int main() {
     NRF_LOG_INFO("version 1.0");
 
     // Enter main loop.
-    uint32_t counter = 0;
-    while (true) {
+    uint32_t i = 0;
+    for (;;){
         //sends chip to sleep, dont want that now!
         //later we will use timers and will re-enable this
         idle_state_handle(); 
         //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         
-        /*while(true){
-            auto success = service::test_notify((uint8_t*)&counter);
+        for (;;){
+            bool success = test_notify((uint8_t*)&i);
             if(success){break;}
-        }*/
-        counter+=1;
+        }
+        i+=1;
         /*if (counter%20 == 0) {
             NRF_LOG_INFO("still alive");
             NRF_LOG_FLUSH();
