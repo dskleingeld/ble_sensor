@@ -51,38 +51,36 @@
  * with 'YOUR_JOB' indicates where and how you can customize.
  */
 
-extern "C" {
-    #include <stdint.h>
-    #include <string.h>
-    #include "nordic_common.h"
-    #include "nrf.h"
-    #include "app_error.h"
-    #include "ble.h"
-    #include "ble_hci.h"
-    #include "ble_srv_common.h"
-    #include "ble_advdata.h"
-    #include "ble_advertising.h"
-    #include "ble_conn_params.h"
-    #include "nrf_sdh.h"
-    #include "nrf_sdh_soc.h"
-    #include "nrf_sdh_ble.h"
-    #include "app_timer.h"
-    #include "peer_manager.h"
-    #include "peer_manager_handler.h"
-    #include "fds.h"
-    #include "ble_conn_state.h"
-    #include "bsp_btn_ble.h"
-    #include "nrf_ble_qwr.h"
-    #include "nrf_ble_gatt.h"
-    #include "nrf_pwr_mgmt.h"
+#include <stdint.h>
+#include <string.h>
+#include "nordic_common.h"
+#include "nrf.h"
+#include "app_error.h"
+#include "ble.h"
+#include "ble_hci.h"
+#include "ble_srv_common.h"
+#include "ble_advdata.h"
+#include "ble_advertising.h"
+#include "ble_conn_params.h"
+#include "nrf_sdh.h"
+#include "nrf_sdh_soc.h"
+#include "nrf_sdh_ble.h"
+#include "app_timer.h"
+#include "peer_manager.h"
+#include "peer_manager_handler.h"
+#include "fds.h"
+#include "ble_conn_state.h"
+#include "bsp_btn_ble.h"
+#include "nrf_ble_qwr.h"
+#include "nrf_ble_gatt.h"
+#include "nrf_pwr_mgmt.h"
 
-    #include "nrf_log.h"
-    #include "nrf_log_ctrl.h"
-    #include "nrf_log_default_backends.h"
-}
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 
-#include "ble_config.hpp"
-#include "service_if.hpp"
+#include "ble_config.h"
+#include "service_if.h"
 
 NRF_BLE_QWR_DEF(m_qwr);                                                             /**< Queued Writes structure.*/
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
@@ -210,7 +208,7 @@ void services_init()
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
-    err_code = service::bluetooth_init();
+    err_code = bluetooth_init();
     APP_ERROR_CHECK(err_code);
 }
 
@@ -396,7 +394,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             break;
     }
 
-    service::bluetooth_on_ble_evt(p_ble_evt);
+    bluetooth_on_ble_evt(p_ble_evt);
 }
 
 

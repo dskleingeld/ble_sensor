@@ -1,11 +1,9 @@
-extern "C" {
-    #include "nrf_log.h"
-    #include "nrf_delay.h"
-    #include "nrf_log_ctrl.h" //FLUSH LOG
-}
+#include "nrf_log.h"
+#include "nrf_delay.h"
+#include "nrf_log_ctrl.h" //FLUSH LOG
 
-#include "ble.hpp"
-#include "service_if.hpp"
+#include "ble.h"
+#include "service_if.h"
 
 int main() {
 
