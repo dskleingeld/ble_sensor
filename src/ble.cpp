@@ -79,6 +79,9 @@ extern "C" {
     #include "nrf_log.h"
     #include "nrf_log_ctrl.h"
     #include "nrf_log_default_backends.h"
+
+    //for pairing:
+    #include <ble_gap.h>
 }
 
 #include "ble_config.hpp"
@@ -339,6 +342,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
     ret_code_t err_code;
+    uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
 
     switch (p_ble_evt->header.evt_id)
     {
@@ -379,10 +383,19 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         case BLE_GATTS_EVT_TIMEOUT: //NOTE: GATTS (S != C)
             // Disconnect on GATT Server timeout event.
             NRF_LOG_DEBUG("GATT Server Timeout.");
-            err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
+            err_code = sd_ble_gap_disconnect(conn_handle,
                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             APP_ERROR_CHECK(err_code);
             break;
+        
+        case BLE_GAP_SEC_PARAMS_REQUEST:
+            ble_gap_sec_params_t sec_params;
+            
+            err_code = sd_ble_gap_sec_params_reply(
+                conn_handle, 
+                BLE_GAP_SEC_STATUS_SUCCESS,
+                
+                )
 
 
         /*case BLE_GATTS_EVT_SYS_ATTR_MISSING: added but didnt solve problem

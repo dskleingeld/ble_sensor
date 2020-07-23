@@ -48,3 +48,26 @@ notify on
 
 # DEV NOTES
 seems to be crashing after some time
+
+///////////////////////////////////////////////////////////////
+out of bound authentication etc
+https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.s132.api.v7.0.1%2Fgroup___b_l_e___g_a_p___c_e_n_t_r_a_l___l_e_s_c___b_o_n_d_i_n_g___o_o_b___m_s_c.html
+[mentions example] https://devzone.nordicsemi.com/nordic/nordic-blog/b/blog/posts/nrf52832-and-android-nougat-simple-and-secure-touc
+https://devzone.nordicsemi.com/f/nordic-q-a/14743/ble-minimal-modifications-to-use-pre-shared-key-auth-and-encryption
+https://www.digikey.com/eewiki/display/Wireless/A+Basic+Introduction+to+BLE+Security#ABasicIntroductiontoBLESecurity-SecurityIssuesFacingBLE:
+
+current plan:
+    compile time set: public keys, confirmation values
+    exchange in the clear: random nonces (investigate for possible security risks)
+
+=> can not be done using the bluez dbus api. options:
+
+- use constant passkey (security risc)
+- use constant passkey + additional custom authentication scheme
+- random passkey send over diy encrypted channel
+
+* the additional authentication must be completed before passkey auth can be accepted. This should solve the MITM attack vector on passkey
+
+* suggestion is to refuse further connections after x failures.
+    -can set a variable and require reboot to try again or,
+    -set a bit in flash that survives reboot to prevent power cycle attack
