@@ -12,5 +12,5 @@ void advertising_init();
 void services_init();
 void conn_params_init();
 void application_timers_start();
-void advertising_start();
+void advertising_start(bool erase_bonds);
 void idle_state_handle();

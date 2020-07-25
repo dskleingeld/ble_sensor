@@ -48,6 +48,11 @@
 #endif
 // <h> Application 
 
+
+#define NRF_LOG_DEFAULT_LEVEL 4
+#define NRF_LOG_DEFERRED 0
+#define NRF_LOG_BACKEND_SERIAL_USES_RTT 1
+
 //==========================================================
 // <o> NRF_BLE_GQ_QUEUE_SIZE - Queue size for BLE GATT Queue module. 
 #ifndef NRF_BLE_GQ_QUEUE_SIZE

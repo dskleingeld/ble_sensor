@@ -9,13 +9,16 @@ int main() {
 
     // Initialize.
     log_init();
+    NRF_LOG_DEBUG("0"); 
     timers_init();
     power_management_init();
+    
     ble_stack_init();
-
     gap_params_init();
     gatt_init();
     advertising_init();
+    NRF_LOG_DEBUG("1"); 
+
     services_init();
     conn_params_init();
     peer_manager_init();
@@ -23,7 +26,7 @@ int main() {
     // Start execution.
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
-    advertising_start();
+    advertising_start(true);
     NRF_LOG_INFO("version 1.0");
 
     // Enter main loop.
@@ -34,14 +37,14 @@ int main() {
         idle_state_handle(); 
         //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         
-        for (;;){
+        /*for (;;){
             bool success = test_notify((uint8_t*)&i);
             if(success){break;}
-        }
+        }*/
         i+=1;
-        /*if (counter%20 == 0) {
+        if (i%20 == 0) {
             NRF_LOG_INFO("still alive");
             NRF_LOG_FLUSH();
-        }*/
+        }
     }
 }

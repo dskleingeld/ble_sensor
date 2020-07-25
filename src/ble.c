@@ -66,11 +66,13 @@
 #include "nrf_sdh_soc.h"
 #include "nrf_sdh_ble.h"
 #include "app_timer.h"
+
+//#include "nrf_ble_lesc.h"
+#include "fds.h"
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
-#include "nrf_ble_lesc.h"
-#include "fds.h"
 #include "ble_conn_state.h"
+
 #include "bsp_btn_ble.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_ble_gatt.h"
@@ -201,14 +203,10 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
  */
 void services_init()
 {
-    nrf_ble_qwr_init_t qwr_init;
-    ret_code_t         err_code;
-
-    // Initialize Queued Write Module
-    memset(&qwr_init, 0, sizeof(qwr_init));
-
+    nrf_ble_qwr_init_t qwr_init = {};
     qwr_init.error_handler = nrf_qwr_error_handler;
-
+    
+    uint32_t err_code;
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
@@ -332,38 +330,6 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
     }
 }
 
-
-/*static ble_gap_sec_params_t generate_sec_params()
-{           
-    ble_gap_sec_kdist_t kdist_own = {
-        .enc = (uint8_t)true,
-        .id = (uint8_t)true,
-        .link = (uint8_t)true,
-        .sign = (uint8_t)true,
-    };
-
-    ble_gap_sec_kdist_t kdist_peer = {
-        .enc = (uint8_t)true,
-        .id = (uint8_t)true,
-        .link = (uint8_t)true,
-        .sign = (uint8_t)true,
-    };            
-    
-    ble_gap_sec_params_t sec_params = {
-        .bond = (uint8_t)false,
-        .mitm = (uint8_t)true,
-        .lesc = (uint8_t)true,
-        .keypress = (uint8_t)false,
-        .io_caps = BLE_GAP_IO_CAPS_KEYBOARD_DISPLAY,
-        .oob = (uint8_t)false,
-        .min_key_size = 8,
-        .max_key_size = 16,
-
-        .kdist_own = kdist_own,
-        .kdist_peer = kdist_peer,
-    };
-    return sec_params;
-}*/
 
 /**@brief Function for handling BLE events.
  *
@@ -552,24 +518,22 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
     switch (p_evt->evt_id) {
     case PM_EVT_CONN_SEC_SUCCEEDED:
     {
-        pm_conn_sec_status_t conn_sec_status;
-
         // Check if the link is authenticated (meaning at least MITM).
+        pm_conn_sec_status_t conn_sec_status;
         err_code = pm_conn_sec_status_get(p_evt->conn_handle, &conn_sec_status);
         APP_ERROR_CHECK(err_code);
 
         if (conn_sec_status.mitm_protected) {
             NRF_LOG_INFO("Link secured. Role: %d. conn_handle: %d, Procedure: %d",
-                            ble_conn_state_role(p_evt->conn_handle),
-                            p_evt->conn_handle,
-                            p_evt->params.conn_sec_succeeded.procedure);
+                ble_conn_state_role(p_evt->conn_handle),
+                p_evt->conn_handle,
+                p_evt->params.conn_sec_succeeded.procedure);
         } else {
             // The peer did not use MITM, disconnect.
             NRF_LOG_INFO("Collector did not use MITM, disconnecting");
             err_code = pm_peer_id_get(m_conn_handle, &m_peer_to_be_deleted);
             APP_ERROR_CHECK(err_code);
-            err_code = sd_ble_gap_disconnect(m_conn_handle,
-                                                BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             APP_ERROR_CHECK(err_code);
         }
     } break;
@@ -585,27 +549,26 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
 }
 
 void peer_manager_init() {
-    ble_gap_sec_params_t sec_param;
-    ret_code_t           err_code;
+    uint32_t err_code;
 
     err_code = pm_init();
     APP_ERROR_CHECK(err_code);
 
-    memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
-
     // Security parameters to be used for all security procedures.
-    sec_param.bond           = (uint8_t)false;
-    sec_param.mitm           = (uint8_t)true;
-    sec_param.lesc           = (uint8_t)true;
-    sec_param.keypress       = (uint8_t)false;
-    sec_param.io_caps        = BLE_GAP_IO_CAPS_NONE;
-    sec_param.oob            = (uint8_t)false;
-    sec_param.min_key_size   = 7;
-    sec_param.max_key_size   = 16;
-    sec_param.kdist_own.enc  = 1;
-    sec_param.kdist_own.id   = 1;
-    sec_param.kdist_peer.enc = 1;
-    sec_param.kdist_peer.id  = 1;
+    ble_gap_sec_params_t sec_param = {
+        .bond           = false,
+        .mitm           = true,
+        .lesc           = true,
+        .keypress       = false,
+        .io_caps        = BLE_GAP_IO_CAPS_NONE,
+        .oob            = false,
+        .min_key_size   = 7,
+        .max_key_size   = 16,
+        .kdist_own.enc  = 1,
+        .kdist_own.id   = 1,
+        .kdist_peer.enc = 1,
+        .kdist_peer.id  = 1,
+    };
 
     err_code = pm_sec_params_set(&sec_param);
     APP_ERROR_CHECK(err_code);
@@ -618,24 +581,21 @@ void peer_manager_init() {
  */
 void advertising_init()
 {
-    ret_code_t    err_code;
-    ble_advertising_init_t init;
+    ble_advertising_init_t init = {
+        .advdata.name_type = BLE_ADVDATA_FULL_NAME,
+        .advdata.include_appearance = true,
+        .advdata.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE,
+        .advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]),
+        .advdata.uuids_complete.p_uuids = m_adv_uuids,
 
-    memset(&init, 0, sizeof(init));
+        .config.ble_adv_fast_enabled = true,
+        .config.ble_adv_fast_interval = APP_ADV_INTERVAL,
+        .config.ble_adv_fast_timeout = APP_ADV_DURATION,
 
-    init.advdata.name_type               = BLE_ADVDATA_FULL_NAME;
-    init.advdata.include_appearance      = true;
-    init.advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-    init.advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
-    init.advdata.uuids_complete.p_uuids  = m_adv_uuids;
+        .evt_handler = on_adv_evt,
+    };
 
-    init.config.ble_adv_fast_enabled   = true;
-    init.config.ble_adv_fast_interval  = APP_ADV_INTERVAL;
-    init.config.ble_adv_fast_timeout   = APP_ADV_DURATION;
-
-    init.evt_handler = on_adv_evt;
-
-    err_code = ble_advertising_init(&m_advertising, &init);
+    uint32_t err_code = ble_advertising_init(&m_advertising, &init);
     APP_ERROR_CHECK(err_code);
 
     ble_advertising_conn_cfg_tag_set(&m_advertising, APP_BLE_CONN_CFG_TAG);
@@ -650,10 +610,30 @@ void log_init()
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void advertising_start(void)
+
+/**@brief Clear bond information from persistent storage.
+ */
+static void delete_bonds(void)
 {
-    ret_code_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+    ret_code_t err_code;
+
+    NRF_LOG_INFO("Erase bonds!");
+
+    err_code = pm_peers_delete();
     APP_ERROR_CHECK(err_code);
+}
+
+/**@brief Function for starting advertising.
+ */
+void advertising_start(bool erase_bonds)
+{
+    if (erase_bonds == true) {
+        delete_bonds();
+        // Advertising is started by PM_EVT_PEERS_DELETE_SUCCEEDED event.
+    } else {
+        uint32_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+        APP_ERROR_CHECK(err_code);
+    }
 }
 
 
@@ -672,8 +652,9 @@ void power_management_init()
  * @details If there is no pending log operation, then sleep until next the next event occurs.
  */
 void idle_state_handle() {
-    uint32_t err_code = nrf_ble_lesc_request_handler();
-    APP_ERROR_CHECK(err_code);
+    //uint32_t err_code = nrf_ble_lesc_request_handler();
+    //APP_ERROR_CHECK(err_code);
+
     if (NRF_LOG_PROCESS() == false)
     {
         nrf_pwr_mgmt_run();

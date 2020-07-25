@@ -23,12 +23,13 @@ uint16_t service_uuid = {0};
 uint32_t bluetooth_init() {
     uint32_t err_code;
 
+    NRF_LOG_DEBUG("1.5")
     //add vendor specific base uuid
     uint8_t base_index; //nis set to the index of the added uuid
     err_code = sd_ble_uuid_vs_add(&base_uuid, &base_index);
     APP_ERROR_CHECK(err_code);
 
-    
+    NRF_LOG_DEBUG("2")
     //add service with the above uuid
     uint16_t service_handle;
     ble_uuid_t ble_uuid = {service_uuid, base_index};
@@ -37,10 +38,11 @@ uint32_t bluetooth_init() {
         &ble_uuid, &service_handle);
     APP_ERROR_CHECK(err_code);
 
+    NRF_LOG_DEBUG("3")
     add_read_characteristics(base_index, service_handle);
     add_notify_characteristics(base_index, service_handle);
     add_write_characteristics(base_index, service_handle);
-
+    NRF_LOG_DEBUG("4")
     return NRF_SUCCESS;
 }
 
