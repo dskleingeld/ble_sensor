@@ -71,3 +71,10 @@ current plan:
 * suggestion is to refuse further connections after x failures.
     -can set a variable and require reboot to try again or,
     -set a bit in flash that survives reboot to prevent power cycle attack
+
+
+    https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.s132.api.v6.0.0%2Fstructble__gap__sec__kdist__t.html
+
+    https://devzone.nordicsemi.com/f/nordic-q-a/35856/questions-about-lesc-mitm-and-passkey/138216#138216.
+    combine with:
+    https://en.wikipedia.org/wiki/Encrypted_key_exchange

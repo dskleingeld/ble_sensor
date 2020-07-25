@@ -18,6 +18,7 @@ int main() {
     advertising_init();
     services_init();
     conn_params_init();
+    peer_manager_init();
 
     // Start execution.
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");

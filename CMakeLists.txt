@@ -3,7 +3,7 @@
 ##############################################################################
 cmake_minimum_required(VERSION 3.13)
 
-set(PROJECT_NA "blinky")
+set(PROJECT_NA "sensor")
 project(ble_app_${PROJECT_NA} C ASM)
 
 # set build type = Debug mode
@@ -18,7 +18,7 @@ set(CMAKE_C_STANDARD 99)
 # You must set these variables with your own path
 set(NRF_TARGET "nrf52") # nrf51 or nrf52
 set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder 
-set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folders
+set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK_17.0.0") # Path to root folders
 set(OPENOCD "openocd")	# Path to openocd if not in path
 set(SOFTDEVICE "softdevice/s132/s132_nrf52_7.0.1_softdevice.hex")
 #set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex") #dont forget to adjust linker memory settings
@@ -48,6 +48,7 @@ nRF5x_addBLEService(ble_lbs_c)
 nRF5x_addBLEService(ble_lbs)
 nRF5x_addAppFDS()
 nRF5x_addBLEPeerManager()
+nRF5x_addBLECrypto()
 nRF5x_addBLEAdvertising()
 nRF5x_addSensorSim()
 nRF5x_addBLEDiscovery()

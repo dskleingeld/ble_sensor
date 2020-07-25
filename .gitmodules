@@ -1,0 +1,3 @@
+[submodule "dependencies/micro-ecc"]
+	path = dependencies/micro-ecc
+	url = https://github.com/kmackay/micro-ecc

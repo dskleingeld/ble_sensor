@@ -403,6 +403,45 @@ macro(nRF5x_addBLEAdvertising)
 
 endmacro(nRF5x_addBLEAdvertising)
 
+macro(nRF5x_addBLECrypto)
+    include_directories(
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310"  
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310_bl"            
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/mbedtls"  
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/oberon"  
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc" 
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/optiga"
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/nrf_sw"
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/nrf_hw"
+            "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cifra"
+            "${NRF5_SDK_PATH}/components/libraries/crypto"
+            "${NRF5_SDK_PATH}/external/nrf_oberon/include"
+            "${NRF5_SDK_PATH}/external/nrf_oberon"
+            "${NRF5_SDK_PATH}/external/mbedtls/include"
+            "${NRF5_SDK_PATH}/../dependencies/micro-ecc"
+            "${NRF5_SDK_PATH}/components/libraries/stack_info"            
+    )
+
+    list(APPEND SDK_SOURCE_FILES
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_init.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_ecc.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_ecdh.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_rng.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c"  
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecc.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdh.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdsa.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng_mbedtls.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/aes.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/ctr_drbg.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/platform_util.c"
+        "${NRF5_SDK_PATH}/../dependencies/micro-ecc/uECC.c"
+    )
+
+    message(STATUS "Including Crypto backends") 
+endmacro(nRF5x_addBLECrypto)
+
 # adds Bluetooth Low Energy advertising support library
 macro(nRF5x_addBLEPeerManager)
     include_directories(
