@@ -78,3 +78,5 @@ current plan:
     https://devzone.nordicsemi.com/f/nordic-q-a/35856/questions-about-lesc-mitm-and-passkey/138216#138216.
     combine with:
     https://en.wikipedia.org/wiki/Encrypted_key_exchange
+
+    https://devzone.nordicsemi.com/f/nordic-q-a/51181/nrf_crypto_ecc_key_pair_generate-return-error/207121

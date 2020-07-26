@@ -551,16 +551,18 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
 void peer_manager_init() {
     uint32_t err_code;
 
+    NRF_LOG_INFO("before init");
     err_code = pm_init();
     APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("after init");
 
     // Security parameters to be used for all security procedures.
     ble_gap_sec_params_t sec_param = {
-        .bond           = false,
+        .bond           = true,
         .mitm           = true,
         .lesc           = true,
         .keypress       = false,
-        .io_caps        = BLE_GAP_IO_CAPS_NONE,
+        .io_caps        = BLE_GAP_IO_CAPS_DISPLAY_ONLY,
         .oob            = false,
         .min_key_size   = 7,
         .max_key_size   = 16,
@@ -652,11 +654,10 @@ void power_management_init()
  * @details If there is no pending log operation, then sleep until next the next event occurs.
  */
 void idle_state_handle() {
-    //uint32_t err_code = nrf_ble_lesc_request_handler();
-    //APP_ERROR_CHECK(err_code);
+    uint32_t err_code = nrf_ble_lesc_request_handler();
+    APP_ERROR_CHECK(err_code);
 
-    if (NRF_LOG_PROCESS() == false)
-    {
+    if (NRF_LOG_PROCESS() == false) {
         nrf_pwr_mgmt_run();
     }
 }

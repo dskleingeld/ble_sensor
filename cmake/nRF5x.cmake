@@ -428,15 +428,30 @@ macro(nRF5x_addBLECrypto)
         "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_ecdh.c"
         "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_rng.c"
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c"  
+
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecc.c"
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdh.c"
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdsa.c"
+        "${NRF5_SDK_PATH}/../dependencies/micro-ecc/uECC.c"
+
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.c"
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng_mbedtls.c"
+        "${NRF5_SDK_PATH}/components/libraries/mem_manager/mem_manager.c"
+
+        "${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_rng.c"
+        "${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_rng.c"
+        "${NRF5_SDK_PATH}/components/libraries/queue/nrf_queue.c"
+
         "${NRF5_SDK_PATH}/external/mbedtls/library/aes.c"
         "${NRF5_SDK_PATH}/external/mbedtls/library/ctr_drbg.c"
         "${NRF5_SDK_PATH}/external/mbedtls/library/platform_util.c"
-        "${NRF5_SDK_PATH}/../dependencies/micro-ecc/uECC.c"
+
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c"
+    )
+
+    list(APPEND SDK_LIBS
+        "${NRF5_SDK_PATH}/external/nrf_oberon/lib/cortex-m4/hard-float/liboberon_3.0.5.a"
     )
 
     message(STATUS "Including Crypto backends") 

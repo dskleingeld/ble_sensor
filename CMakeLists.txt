@@ -135,6 +135,8 @@ list(APPEND SOURCE_FILES "src/main.c")
 # EXECUTABLES
 ##############################################################################
 nRF5x_addExecutable(${PROJECT_NAME} "${SOURCE_FILES}")
+target_link_libraries(${PROJECT_NAME} "${SDK_LIBS}")
+
 
 ##############################################################################
 # .hex, .map and .bin file 
