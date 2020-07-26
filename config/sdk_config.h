@@ -49,7 +49,7 @@
 
 #define DEBUG 1
 #define NRF_LOG_DEFAULT_LEVEL 4
-#define NRF_LOG_DEFERRED 0
+#define NRF_LOG_DEFERRED 1
 #define NRF_LOG_BACKEND_SERIAL_USES_RTT 1
 
 // </h> 

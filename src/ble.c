@@ -72,6 +72,7 @@
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
 #include "ble_conn_state.h"
+#include "nrf_ble_lesc.h"
 
 #include "bsp_btn_ble.h"
 #include "nrf_ble_qwr.h"
@@ -161,7 +162,7 @@ void gap_params_init()
     ble_gap_addr_t address = {
         0, //ignored
         BLE_GAP_ADDR_TYPE_PUBLIC, 
-        {10,10,10,10,10,10}}; 
+        {20,10,10,10,10,10}}; 
     err_code = sd_ble_gap_addr_set(&address);
     APP_ERROR_CHECK(err_code);
 
@@ -340,6 +341,8 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
     uint32_t err_code;
     uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
+    //ble_conn_state_on_ble_evt(p_ble_evt);
+    //pm_on_ble_evt(p_ble_evt);
     pm_handler_secure_on_connection(p_ble_evt);
 
     switch (p_ble_evt->header.evt_id) {
@@ -415,21 +418,12 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 *((uint8_t *)&p_ble_evt->evt.gap_evt.params.auth_status.kdist_peer));
         break;
 
-    /*case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
-        NRF_LOG_INFO("BLE_GAP_EVT_LESC_DHKEY_REQUEST received");
-        //sd_ble_gap_keypress_notify //TODO what to do here...
-        //some hard work
-        ble_gap_lesc_dhkey_t dhkey = {}; //TODO give value
-        err_code = sd_ble_gap_lesc_dhkey_reply(conn_handle, &dhkey);
-        APP_ERROR_CHECK(err_code);
+    case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
+        NRF_LOG_INFO("BLE_GAP_EVT_LESC_DHKEY_REQUEST");
         break;
     case BLE_GAP_EVT_CONN_SEC_UPDATE:
-        NRF_LOG_INFO("BLE_GAP_EVT_CONN_SEC_UPDATE received");
+        NRF_LOG_INFO("BLE_GAP_EVT_CONN_SEC_UPDATE");
         break;
-    case BLE_GAP_EVT_AUTH_STATUS:
-        NRF_LOG_INFO("BLE_GAP_EVT_CONN_SEC_UPDATE received");
-        NRF_LOG_INFO("Pairing successful!!!");
-        break;*/
     default:
         // No implementation needed.
         break;
@@ -558,7 +552,7 @@ void peer_manager_init() {
 
     // Security parameters to be used for all security procedures.
     ble_gap_sec_params_t sec_param = {
-        .bond           = true,
+        .bond           = false,
         .mitm           = true,
         .lesc           = true,
         .keypress       = false,
@@ -566,10 +560,10 @@ void peer_manager_init() {
         .oob            = false,
         .min_key_size   = 7,
         .max_key_size   = 16,
-        .kdist_own.enc  = 1,
-        .kdist_own.id   = 1,
-        .kdist_peer.enc = 1,
-        .kdist_peer.id  = 1,
+        .kdist_own.enc  = false,
+        .kdist_own.id   = false,
+        .kdist_peer.enc = false,
+        .kdist_peer.id  = false,
     };
 
     err_code = pm_sec_params_set(&sec_param);

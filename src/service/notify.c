@@ -15,7 +15,7 @@ void add_notify_characteristics(uint8_t base_index, uint16_t service_handle) {
     ble_gatts_attr_md_t cccd_meta = {};
     cccd_meta.vloc = BLE_GATTS_VLOC_STACK; //value location
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_meta.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_meta.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&cccd_meta.write_perm);
 
     //The Attribute Metadata: This is a structure holding permissions and 
     //authorization levels required by characteristic value attributes. 

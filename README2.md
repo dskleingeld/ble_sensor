@@ -80,3 +80,12 @@ current plan:
     https://en.wikipedia.org/wiki/Encrypted_key_exchange
 
     https://devzone.nordicsemi.com/f/nordic-q-a/51181/nrf_crypto_ecc_key_pair_generate-return-error/207121
+
+
+#Steps to pair from bluetoothctl:
+
+[bluetooth]# agent KeyboardDisplay
+[bluetooth]# default-agent
+[bluetooth]# scan on
+[bluetooth]# scan off
+[bluetooth]# pair 

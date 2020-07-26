@@ -48,8 +48,8 @@ int main() {
     for (;;){
         //sends chip to sleep, dont want that now!
         //later we will use timers and will re-enable this
-        //idle_state_handle(); 
-        nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
+        idle_state_handle(); 
+        //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         
         /*for (;;){
             bool success = test_notify((uint8_t*)&i);
