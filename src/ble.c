@@ -93,6 +93,7 @@ BLE_ADVERTISING_DEF(m_advertising);                                             
 
 static pm_peer_id_t m_peer_to_be_deleted = PM_PEER_ID_INVALID;
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;
+uint8_t passkey[6] = {1,2,3,4,5,6}; //FIXME must be random in the future
 //static ble_gap_sec_keyset_t keyset;
 // TODO add own UUIDs.
 static ble_uuid_t m_adv_uuids[] =                                                   /**< Universally unique service identifiers. */
@@ -147,14 +148,12 @@ void timers_init(void)
 void gap_params_init()
 {
     ret_code_t              err_code;
-    ble_gap_conn_params_t   gap_conn_params;
     ble_gap_conn_sec_mode_t sec_mode;
 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
-
     err_code = sd_ble_gap_device_name_set(&sec_mode,
-                                          (const uint8_t *)DEVICE_NAME,
-                                          strlen(DEVICE_NAME));
+        (const uint8_t *)DEVICE_NAME,
+        strlen(DEVICE_NAME));
     APP_ERROR_CHECK(err_code);
 
     //set a MAC addr to prevent server side bluez from
@@ -166,14 +165,19 @@ void gap_params_init()
     err_code = sd_ble_gap_addr_set(&address);
     APP_ERROR_CHECK(err_code);
 
-    memset(&gap_conn_params, 0, sizeof(gap_conn_params));
-
+    ble_gap_conn_params_t gap_conn_params = {};
     gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
     gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
     gap_conn_params.slave_latency     = SLAVE_LATENCY;
     gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
 
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
+    APP_ERROR_CHECK(err_code);
+
+    uint8_t passkey [] = "123456";
+    ble_opt_t optS;
+    optS.gap_opt.passkey.p_passkey=&passkey[0];
+    err_code = sd_ble_opt_set(BLE_GAP_OPT_PASSKEY, &optS);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -339,6 +343,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
  */
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
+
     uint32_t err_code;
     uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
     //ble_conn_state_on_ble_evt(p_ble_evt);
@@ -348,8 +353,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONNECTED:
         NRF_LOG_INFO("Connected.");
-        err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
-        APP_ERROR_CHECK(err_code);
         m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
         err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
         APP_ERROR_CHECK(err_code);
@@ -382,20 +385,10 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         APP_ERROR_CHECK(err_code);
         break;
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST: 
-    {
         NRF_LOG_INFO("BLE_GAP_EVT_SEC_PARAMS_REQUEST received")
-        /*ble_gap_sec_params_t params = generate_sec_params();
-        err_code = sd_ble_gap_sec_params_reply(
-            conn_handle, 
-            BLE_GAP_SEC_STATUS_SUCCESS,
-            &params,
-            &keyset);
-        APP_ERROR_CHECK(err_code);*/
-    }
         break;
     case BLE_GAP_EVT_AUTH_KEY_REQUEST:
         NRF_LOG_INFO("BLE_GAP_EVT_AUTH_KEY_REQUEST received");
-        uint8_t passkey[] = "123456";
         err_code = sd_ble_gap_auth_key_reply(
             conn_handle, 
             BLE_GAP_AUTH_KEY_TYPE_PASSKEY, 
@@ -404,10 +397,11 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         break;
     case BLE_GAP_EVT_PASSKEY_DISPLAY:
         {
-        char passkey[6 + 1];
-        memcpy(passkey, p_ble_evt->evt.gap_evt.params.passkey_display.passkey, 6);
-        passkey[6] = 0;
-        NRF_LOG_INFO("Passkey: %s", nrf_log_push(passkey));
+        //memcpy(p_ble_evt->evt.gap_evt.params.passkey_display.passkey, passkey, sizeof(passkey));
+        char to_show[6 + 1];
+        memcpy(to_show, p_ble_evt->evt.gap_evt.params.passkey_display.passkey, 6);
+        to_show[6] = 0;
+        NRF_LOG_INFO("Passkey: %s", nrf_log_push(to_show));
         } break;
         case BLE_GAP_EVT_AUTH_STATUS:
             NRF_LOG_INFO("BLE_GAP_EVT_AUTH_STATUS: status=0x%x bond=0x%x lv4: %d kdist_own:0x%x kdist_peer:0x%x",
@@ -556,7 +550,7 @@ void peer_manager_init() {
         .mitm           = true,
         .lesc           = true,
         .keypress       = false,
-        .io_caps        = BLE_GAP_IO_CAPS_DISPLAY_ONLY,
+        .io_caps        = BLE_GAP_IO_CAPS_DISPLAY_ONLY, // or BLE_GAP_IO_CAPS_KEYBOARD_ONLY
         .oob            = false,
         .min_key_size   = 7,
         .max_key_size   = 16,
