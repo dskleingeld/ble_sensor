@@ -1,0 +1,121 @@
+#include <stdint.h>
+
+#include "nrf_log.h"
+#include "ble_conn_state.h"
+#include "nrf_crypto.h"
+
+#include "peer_manager.h"
+#include "peer_manager_handler.h"
+#include "ble.h"
+
+static pm_peer_id_t m_peer_to_be_deleted = PM_PEER_ID_INVALID;
+extern uint16_t m_conn_handle;
+
+static void randomize_passkey(){
+    uint8_t passkey[7] = {'\0'};
+
+    uint8_t min = '0';
+    uint8_t max = '9';
+    for (int i=0; i<sizeof(passkey)-1; i++){
+        uint32_t err_code = nrf_crypto_rng_vector_generate_in_range(&passkey[i], &min, &max, 1);
+        APP_ERROR_CHECK(err_code);
+    }
+
+    ble_opt_t optS = {
+        .gap_opt.passkey.p_passkey=&passkey[0],
+    };
+
+    uint32_t err_code = sd_ble_opt_set(BLE_GAP_OPT_PASSKEY, &optS);
+    APP_ERROR_CHECK(err_code);
+}
+
+/**@brief Function for handling Peer Manager events.
+ *
+ * @param[in] p_evt  Peer Manager event.
+ */
+static void pm_evt_handler(pm_evt_t const * p_evt)
+{
+    ret_code_t err_code;
+
+    pm_handler_on_pm_evt(p_evt);
+    pm_handler_disconnect_on_sec_failure(p_evt);
+    pm_handler_flash_clean(p_evt);
+
+    switch (p_evt->evt_id) {
+    case PM_EVT_CONN_SEC_SUCCEEDED:
+    {
+        randomize_passkey();
+        // Check if the link is authenticated (meaning at least MITM).
+        pm_conn_sec_status_t conn_sec_status;
+        err_code = pm_conn_sec_status_get(p_evt->conn_handle, &conn_sec_status);
+        APP_ERROR_CHECK(err_code);
+
+        if (conn_sec_status.mitm_protected) {
+            NRF_LOG_INFO("Link secured. Role: %d. conn_handle: %d, Procedure: %d",
+                ble_conn_state_role(p_evt->conn_handle),
+                p_evt->conn_handle,
+                p_evt->params.conn_sec_succeeded.procedure);
+        } else {
+            // The peer did not use MITM, disconnect.
+            //NRF_LOG_INFO("Collector did not use MITM, disconnecting");
+            err_code = pm_peer_id_get(m_conn_handle, &m_peer_to_be_deleted);
+            APP_ERROR_CHECK(err_code);
+            err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            APP_ERROR_CHECK(err_code);
+        }
+    } break;
+    case PM_EVT_CONN_SEC_FAILED:
+        randomize_passkey();
+        m_conn_handle = BLE_CONN_HANDLE_INVALID;
+        break;
+    case PM_EVT_PEERS_DELETE_SUCCEEDED:
+        advertising_start(false);
+        break;
+    default:
+        break;
+    }
+}
+
+void peer_manager_init() {
+    uint32_t err_code;
+
+    NRF_LOG_INFO("before init");
+    err_code = pm_init();
+    APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("after init");
+
+    // Security parameters to be used for all security procedures.
+    ble_gap_sec_params_t sec_param = {
+        .bond           = false,
+        .mitm           = true,
+        .lesc           = true,
+        .keypress       = false,
+        .io_caps        = BLE_GAP_IO_CAPS_DISPLAY_ONLY, // or BLE_GAP_IO_CAPS_KEYBOARD_ONLY
+        .oob            = false,
+        .min_key_size   = 7,
+        .max_key_size   = 16,
+        .kdist_own.enc  = false,
+        .kdist_own.id   = false,
+        .kdist_peer.enc = false,
+        .kdist_peer.id  = false,
+    };
+
+    err_code = pm_sec_params_set(&sec_param);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = pm_register(pm_evt_handler);
+    APP_ERROR_CHECK(err_code);
+}
+
+void update_passkey(uint8_t newkey[]){
+    uint8_t passkey[7] = {'\0'};
+    memcpy(passkey, newkey, sizeof(passkey)-1);
+    ble_opt_t optS;
+    optS.gap_opt.passkey.p_passkey=&passkey[0];
+    uint32_t err_code = sd_ble_opt_set(BLE_GAP_OPT_PASSKEY, &optS);
+    APP_ERROR_CHECK(err_code);
+}
+
+void init_passkey(){
+    randomize_passkey();
+}

@@ -128,6 +128,7 @@ list(APPEND SOURCE_FILES "src/service/service_if.c")
 list(APPEND SOURCE_FILES "src/service/read.c")
 list(APPEND SOURCE_FILES "src/service/notify.c")
 list(APPEND SOURCE_FILES "src/service/write.c")
+list(APPEND SOURCE_FILES "src/pairing.c")
 
 list(APPEND SOURCE_FILES "src/ble.c")
 list(APPEND SOURCE_FILES "src/main.c")
