@@ -161,7 +161,7 @@ void gap_params_init()
     ble_gap_addr_t address = {
         0, //ignored
         BLE_GAP_ADDR_TYPE_PUBLIC, 
-        {20,10,10,10,10,10}}; 
+        {10,10,10,10,10,10}}; 
     err_code = sd_ble_gap_addr_set(&address);
     APP_ERROR_CHECK(err_code);
 
@@ -346,9 +346,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
     uint32_t err_code;
     uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
-    //ble_conn_state_on_ble_evt(p_ble_evt);
-    //pm_on_ble_evt(p_ble_evt);
-    pm_handler_secure_on_connection(p_ble_evt);
+    pm_handler_secure_on_error(p_ble_evt);
 
     switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONNECTED:
@@ -518,7 +516,7 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
                 p_evt->params.conn_sec_succeeded.procedure);
         } else {
             // The peer did not use MITM, disconnect.
-            NRF_LOG_INFO("Collector did not use MITM, disconnecting");
+            //NRF_LOG_INFO("Collector did not use MITM, disconnecting");
             err_code = pm_peer_id_get(m_conn_handle, &m_peer_to_be_deleted);
             APP_ERROR_CHECK(err_code);
             err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
