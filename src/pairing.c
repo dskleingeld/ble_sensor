@@ -3,10 +3,14 @@
 #include "nrf_log.h"
 #include "ble_conn_state.h"
 #include "nrf_crypto.h"
+#include <nrf_soc.h>
 
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
 #include "ble.h"
+
+#include "secrets.h"
+#include "pairing.h"
 
 static pm_peer_id_t m_peer_to_be_deleted = PM_PEER_ID_INVALID;
 extern uint16_t m_conn_handle;
@@ -117,5 +121,85 @@ void update_passkey(uint8_t newkey[]){
 }
 
 void init_passkey(){
-    randomize_passkey();
+    uint8_t newkey[] = "123456";
+    update_passkey(newkey);
+    //randomize_passkey();
+}
+
+struct NonceState nonce = {
+    .uuid = 4,
+};
+    
+void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
+    //The Attribute Metadata: This is a structure holding permissions and 
+    //authorization levels required by characteristic value attributes. 
+    //It also holds information on whether or not the characteristic value 
+    //is of variable length and where in memory it is stored.
+    ble_gatts_attr_md_t attr_meta = {};
+    attr_meta.vloc = BLE_GATTS_VLOC_STACK;
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_meta.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_meta.write_perm);
+    //The Characteristic Metadata: This is a structure holding the value 
+    //properties of the characteristic value. It also holds metadata of the 
+    //CCCD and possibly other kinds of descriptors.
+    ble_gatts_char_md_t char_meta = {};
+    char_meta.char_props.read = (uint8_t)false;
+    char_meta.char_props.write = (uint8_t)true;
+    char_meta.p_cccd_md = NULL; //Attribute metadata for the cccd, NULL for default values.
+    //The Characteristic Value Attribute: This structure holds the actual value 
+    //of the characteristic (like the temperature value). It also holds the 
+    //maximum length of the value (it might e.g. be four bytes long) and it's UUID.
+    ble_gatts_attr_t attr_char_value = {};
+    ble_uuid_t char_uuid = {nonce.uuid,base_index};
+    attr_char_value.p_uuid = &char_uuid; //lifetime long enough?
+    attr_char_value.p_attr_md = &attr_meta;
+    attr_char_value.max_len = 16;
+    attr_char_value.init_len = 16;
+    attr_char_value.p_value = nonce.data;
+
+    uint32_t err_code = sd_ble_gatts_characteristic_add(service_handle,
+        &char_meta,
+        &attr_char_value,
+        &nonce.handle);
+    APP_ERROR_CHECK(err_code);
+}
+
+void set_nonce_from_char(ble_evt_t const* p_ble_evt){
+    uint8_t* data = p_ble_evt->evt.gatts_evt.params.write.data;
+    nrf_ecb_hal_data_t m_ecb_data; 
+
+    memcpy(&m_ecb_data.key[0], KEY, sizeof(KEY));
+    memcpy(&m_ecb_data.cleartext[0], data, 16);
+    //NRF_LOG_HEXDUMP_INFO(data, 16);
+    
+    NRF_LOG_INFO("cleartext:");
+    for(int i = 0; i < 16; i++){
+        NRF_LOG_INFO("%d", m_ecb_data.cleartext[i]);
+    }
+
+    sd_ecb_block_encrypt(&m_ecb_data);
+
+    NRF_LOG_INFO("ciphertext:");
+    for(int i = 0; i < 16; i++){
+        NRF_LOG_INFO("%d", m_ecb_data.ciphertext[i]);
+    }
+
+    //retrieve response
+    uint32_t pin;
+    uint8_t response[6] = {0};
+    memcpy(&response[0], &m_ecb_data.ciphertext[0], sizeof(response));    
+
+    /*for(size_t i=0; i<sizeof(uint32_t); i++){
+        const uint8_t bit_shifts = ( sizeof(uint32_t)-1-i ) * 8;
+        pin |= (uint32_t)response[i] << bit_shifts;
+    }*/
+
+    for(size_t i=0; i<sizeof(uint32_t); i++){
+        pin |= (uint32_t)response[i] << 8*i;
+    }
+
+    uint8_t new_key[12]; //prevent overflow allows full range of uint32_t
+    sprintf((char*)new_key, "%ld", pin);
+    NRF_LOG_INFO("new_key: %s", new_key);
+    update_passkey(new_key);
 }

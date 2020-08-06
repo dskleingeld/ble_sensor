@@ -10,3 +10,5 @@ cmake/cmake_install.cmake
 cmake/CMakeCache.txt
 cmake/CMakeFiles
 cmake/Makefile
+
+src/secrets.h

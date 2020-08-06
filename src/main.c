@@ -51,10 +51,11 @@ int main() {
         idle_state_handle(); 
         //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         
-        /*for (;;){
+        for (;;){
             bool success = test_notify((uint8_t*)&i);
             if(success){break;}
-        }*/
+        }
+        
         i+=1;
         if (i%20 == 0) {
             NRF_LOG_INFO("still alive");

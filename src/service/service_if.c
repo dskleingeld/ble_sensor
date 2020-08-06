@@ -10,6 +10,7 @@
 #include "notify.h"
 #include "read.h"
 #include "write.h"
+#include "../pairing.h"
 
 #include <stdint.h>
 
@@ -42,6 +43,7 @@ uint32_t bluetooth_init() {
     add_read_characteristics(base_index, service_handle);
     add_notify_characteristics(base_index, service_handle);
     add_write_characteristics(base_index, service_handle);
+    add_nonce_characteristics(base_index, service_handle);
     NRF_LOG_DEBUG("4")
     return NRF_SUCCESS;
 }
@@ -63,6 +65,8 @@ void handle_write(ble_evt_t const* p_ble_evt){
         }
     } else if (char_written_to == write.handle.value_handle){
         NRF_LOG_INFO("written to characteristic");
+    } else if (char_written_to == nonce.handle.value_handle){
+        set_nonce_from_char(p_ble_evt);
     }
 }
 
