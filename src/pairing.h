@@ -15,3 +15,4 @@ extern struct NonceState nonce;
 
 void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle);
 void set_nonce_from_char();
+void test();

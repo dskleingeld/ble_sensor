@@ -54,6 +54,7 @@ nRF5x_addSensorSim()
 nRF5x_addBLEDiscovery()
 nRF5x_addBLEgq()
 nRF5x_addBLEScan()
+nRF5x_addAuthCrypt()
 
 # Libraries not used
 # nRF5x_addAppScheduler()

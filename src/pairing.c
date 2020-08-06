@@ -164,13 +164,88 @@ void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
     APP_ERROR_CHECK(err_code);
 }
 
+/*void test(){
+    nrf_ecb_hal_data_t m_ecb_data; 
+    uint8_t data[16] = {0};
+    data[1] = 2;
+    data[2] = 212;
+    data[3] = 222;
+    
+    memcpy(&m_ecb_data.key[0], KEY, sizeof(KEY));
+    memcpy(&m_ecb_data.cleartext[0], data, 16);
+
+    NRF_LOG_INFO("cleartext:");
+    for(int i = 0; i < 16; i++){
+        NRF_LOG_INFO("%d", m_ecb_data.cleartext[i]);
+    }
+
+    sd_ecb_block_encrypt(&m_ecb_data);
+
+    NRF_LOG_INFO("ciphertext:");
+    for(int i = 0; i < 16; i++){
+        NRF_LOG_INFO("%d", m_ecb_data.ciphertext[i]);
+    }
+}*/
+
+void test(){
+    nrf_crypto_aead_context_t ccm_ctx;
+    nrf_crypto_aead_info_t const* p_ccm_k128_info = &g_nrf_crypto_aes_ccm_128_info; // for a 128-bit key
+    uint32_t ret_val = nrf_crypto_aead_init(&ccm_ctx, p_ccm_k128_info, KEY);
+    APP_ERROR_CHECK(ret_val);
+
+    uint8_t data[16] = {0};
+    data[1] = 2;
+    data[2] = 212;
+    data[3] = 222;
+    uint8_t data_encrypted[16] = {0};
+    uint8_t data_decrypted[16] = {0};
+    uint8_t nonce[8] = {0};
+    uint8_t mac[4] = {0};
+    uint8_t adata[2] = {0};
+
+    ret_val = nrf_crypto_aead_crypt(&ccm_ctx,
+        NRF_CRYPTO_ENCRYPT,
+        nonce, 
+        sizeof(nonce),
+        adata,//adata,
+        sizeof(adata), //sizeof(adata),
+        data,
+        sizeof(data),
+        data_encrypted,
+        mac,
+        sizeof(4)); //sizeof(mac));
+    APP_ERROR_CHECK(ret_val);
+
+    NRF_LOG_INFO("data_encrypted:");
+    for(int i = 0; i < 16; i++){
+        NRF_LOG_INFO("%d", data_encrypted[i]);
+    }
+
+    ret_val = nrf_crypto_aead_crypt(&ccm_ctx,
+        NRF_CRYPTO_DECRYPT,
+        nonce, 
+        sizeof(nonce),
+        adata,//adata,
+        sizeof(adata), //sizeof(adata),
+        data_encrypted,
+        sizeof(data_encrypted),
+        data_decrypted,
+        mac,
+        sizeof(mac)); //sizeof(mac));
+    APP_ERROR_CHECK(ret_val);
+
+    NRF_LOG_INFO("data_decrypted:");
+    for(int i = 0; i < 16; i++){
+        NRF_LOG_INFO("%d", data_decrypted[i]);
+    }
+}
+
 void set_nonce_from_char(ble_evt_t const* p_ble_evt){
     uint8_t* data = p_ble_evt->evt.gatts_evt.params.write.data;
     nrf_ecb_hal_data_t m_ecb_data; 
 
     memcpy(&m_ecb_data.key[0], KEY, sizeof(KEY));
     memcpy(&m_ecb_data.cleartext[0], data, 16);
-    //NRF_LOG_HEXDUMP_INFO(data, 16);
     
     NRF_LOG_INFO("cleartext:");
     for(int i = 0; i < 16; i++){

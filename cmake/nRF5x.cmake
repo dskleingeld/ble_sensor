@@ -450,11 +450,30 @@ macro(nRF5x_addBLECrypto)
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c"
     )
 
-    list(APPEND SDK_LIBS
-        "${NRF5_SDK_PATH}/external/nrf_oberon/lib/cortex-m4/hard-float/liboberon_3.0.5.a"
+    message(STATUS "Including Crypto backends") 
+endmacro(nRF5x_addBLECrypto)
+
+macro(nRF5x_addAuthCrypt)
+    include_directories(
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_aead.h"
     )
 
-    message(STATUS "Including Crypto backends") 
+    list(APPEND SDK_SOURCE_FILES
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_aead.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/mbedtls/mbedtls_backend_aes_aead.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/ccm.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/cipher.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/cipher_wrap.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/gcm.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/chachapoly.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/chacha20.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/arc4.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/blowfish.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/des.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/camellia.c"
+        "${NRF5_SDK_PATH}/external/mbedtls/library/poly1305.c"
+    )
+    message(STATUS "Including AEAD encryption+authentication backends") 
 endmacro(nRF5x_addBLECrypto)
 
 # adds Bluetooth Low Energy advertising support library

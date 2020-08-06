@@ -17,21 +17,13 @@ int main() {
     APP_ERROR_CHECK(ret_val);
     ret_val = nrf_crypto_rng_init(NULL, NULL);
     APP_ERROR_CHECK(ret_val);
-
-    uint8_t buffer[] = {1};
-    ret_val = nrf_crypto_rng_vector_generate(buffer, sizeof(buffer));
-    NRF_LOG_INFO("uninit: %i",NRF_ERROR_CRYPTO_NOT_INITIALIZED);
-    NRF_LOG_INFO("context: %i", NRF_ERROR_CRYPTO_CONTEXT_NOT_INITIALIZED);
-    NRF_LOG_INFO("internal: %i",NRF_ERROR_CRYPTO_INTERNAL);
-
-    APP_ERROR_CHECK(ret_val);
-    NRF_LOG_INFO("random numb? %i",buffer[0]);
     
+    test();
+
     ble_stack_init();
     gap_params_init();
     gatt_init();
     advertising_init();
-    NRF_LOG_DEBUG("1"); 
 
     services_init();
     conn_params_init();
