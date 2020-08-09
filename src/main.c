@@ -17,8 +17,6 @@ int main() {
     APP_ERROR_CHECK(ret_val);
     ret_val = nrf_crypto_rng_init(NULL, NULL);
     APP_ERROR_CHECK(ret_val);
-    
-    test();
 
     ble_stack_init();
     gap_params_init();

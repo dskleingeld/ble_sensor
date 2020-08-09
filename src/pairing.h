@@ -9,10 +9,18 @@ void init_passkey();
 struct NonceState {
     ble_gatts_char_handles_t handle;
     uint16_t uuid;
+    uint8_t data[12];
+};
+struct PinState {
+    ble_gatts_char_handles_t handle;
+    uint16_t uuid;
     uint8_t data[16];
 };
-extern struct NonceState nonce;
 
+extern struct NonceState nonce;
+extern struct PinState pin_state;
+
+void add_pin_characteristics(uint8_t base_index, uint16_t service_handle);
 void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle);
-void set_nonce_from_char();
+void set_pin(ble_evt_t const* enc_key_event);
 void test();

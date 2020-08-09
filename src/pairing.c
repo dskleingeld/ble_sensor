@@ -136,7 +136,7 @@ void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
     //It also holds information on whether or not the characteristic value 
     //is of variable length and where in memory it is stored.
     ble_gatts_attr_md_t attr_meta = {};
-    attr_meta.vloc = BLE_GATTS_VLOC_STACK;
+    attr_meta.vloc = BLE_GATTS_VLOC_USER;
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_meta.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_meta.write_perm);
     //The Characteristic Metadata: This is a structure holding the value 
@@ -153,8 +153,8 @@ void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
     ble_uuid_t char_uuid = {nonce.uuid,base_index};
     attr_char_value.p_uuid = &char_uuid; //lifetime long enough?
     attr_char_value.p_attr_md = &attr_meta;
-    attr_char_value.max_len = 16;
-    attr_char_value.init_len = 16;
+    attr_char_value.max_len = 12;
+    attr_char_value.init_len = 12;
     attr_char_value.p_value = nonce.data;
 
     uint32_t err_code = sd_ble_gatts_characteristic_add(service_handle,
@@ -164,69 +164,89 @@ void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
     APP_ERROR_CHECK(err_code);
 }
 
-/*void test(){
-    nrf_ecb_hal_data_t m_ecb_data; 
-    uint8_t data[16] = {0};
-    data[1] = 2;
-    data[2] = 212;
-    data[3] = 222;
-    
-    memcpy(&m_ecb_data.key[0], KEY, sizeof(KEY));
-    memcpy(&m_ecb_data.cleartext[0], data, 16);
+struct PinState pin_state = {
+    .uuid = 5,
+};
 
-    NRF_LOG_INFO("cleartext:");
-    for(int i = 0; i < 16; i++){
-        NRF_LOG_INFO("%d", m_ecb_data.cleartext[i]);
-    }
+void add_pin_characteristics(uint8_t base_index, uint16_t service_handle) {
+    //The Attribute Metadata: This is a structure holding permissions and 
+    //authorization levels required by characteristic value attributes. 
+    //It also holds information on whether or not the characteristic value 
+    //is of variable length and where in memory it is stored.
+    ble_gatts_attr_md_t attr_meta = {};
+    attr_meta.vloc = BLE_GATTS_VLOC_STACK;
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_meta.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_meta.write_perm);
+    //The Characteristic Metadata: This is a structure holding the value 
+    //properties of the characteristic value. It also holds metadata of the 
+    //CCCD and possibly other kinds of descriptors.
+    ble_gatts_char_md_t char_meta = {};
+    char_meta.char_props.read = (uint8_t)false;
+    char_meta.char_props.write = (uint8_t)true;
+    char_meta.p_cccd_md = NULL; //Attribute metadata for the cccd, NULL for default values.
+    //The Characteristic Value Attribute: This structure holds the actual value 
+    //of the characteristic (like the temperature value). It also holds the 
+    //maximum length of the value (it might e.g. be four bytes long) and it's UUID.
+    ble_gatts_attr_t attr_char_value = {};
+    ble_uuid_t char_uuid = {pin_state.uuid,base_index};
+    attr_char_value.p_uuid = &char_uuid; //lifetime long enough?
+    attr_char_value.p_attr_md = &attr_meta;
+    attr_char_value.max_len = 20;
+    attr_char_value.init_len = 20;
+    attr_char_value.p_value = pin_state.data;
 
-    sd_ecb_block_encrypt(&m_ecb_data);
-
-    NRF_LOG_INFO("ciphertext:");
-    for(int i = 0; i < 16; i++){
-        NRF_LOG_INFO("%d", m_ecb_data.ciphertext[i]);
-    }
-}*/
+    uint32_t err_code = sd_ble_gatts_characteristic_add(service_handle,
+        &char_meta,
+        &attr_char_value,
+        &pin_state.handle);
+    APP_ERROR_CHECK(err_code);
+}
 
 void test(){
-    nrf_crypto_aead_context_t ccm_ctx;
-    nrf_crypto_aead_info_t const* p_ccm_k128_info = &g_nrf_crypto_aes_ccm_128_info; // for a 128-bit key
-    uint32_t ret_val = nrf_crypto_aead_init(&ccm_ctx, p_ccm_k128_info, KEY);
+    nrf_crypto_aead_context_t gcm_ctx;
+    nrf_crypto_aead_info_t const* p_gcm_k128_info = &g_nrf_crypto_aes_gcm_128_info; // for a 128-bit key
+    uint32_t ret_val = nrf_crypto_aead_init(&gcm_ctx, p_gcm_k128_info, KEY);
     APP_ERROR_CHECK(ret_val);
 
-    uint8_t data[16] = {0};
-    data[1] = 2;
-    data[2] = 212;
-    data[3] = 222;
-    uint8_t data_encrypted[16] = {0};
-    uint8_t data_decrypted[16] = {0};
-    uint8_t nonce[8] = {0};
-    uint8_t mac[4] = {0};
+    uint8_t data[4] = {0};
+    data[1] = 0;
+    data[2] = 0;
+    data[3] = 28;
+    uint8_t data_encrypted[4] = {0};
+    uint8_t data_decrypted[4] = {0};
+    uint8_t nonce[12] = {0};
+    uint8_t mac[16] = {16};
     uint8_t adata[2] = {0};
 
-    ret_val = nrf_crypto_aead_crypt(&ccm_ctx,
+    ret_val = nrf_crypto_aead_crypt(&gcm_ctx,
         NRF_CRYPTO_ENCRYPT,
         nonce, 
         sizeof(nonce),
         adata,//adata,
-        sizeof(adata), //sizeof(adata),
+        0, //sizeof(adata), //sizeof(adata),
         data,
         sizeof(data),
         data_encrypted,
         mac,
-        sizeof(4)); //sizeof(mac));
+        sizeof(mac)); //sizeof(mac));
     APP_ERROR_CHECK(ret_val);
 
     NRF_LOG_INFO("data_encrypted:");
-    for(int i = 0; i < 16; i++){
+    for(int i = 0; i < sizeof(data_encrypted); i++){
         NRF_LOG_INFO("%d", data_encrypted[i]);
     }
 
-    ret_val = nrf_crypto_aead_crypt(&ccm_ctx,
+    NRF_LOG_INFO("mac:");
+    for(int i = 0; i < sizeof(mac); i++){
+        NRF_LOG_INFO("%d", mac[i]);
+    }
+
+    ret_val = nrf_crypto_aead_crypt(&gcm_ctx,
         NRF_CRYPTO_DECRYPT,
         nonce, 
         sizeof(nonce),
         adata,//adata,
-        sizeof(adata), //sizeof(adata),
+        0, //sizeof(adata), //sizeof(adata),
         data_encrypted,
         sizeof(data_encrypted),
         data_decrypted,
@@ -235,46 +255,43 @@ void test(){
     APP_ERROR_CHECK(ret_val);
 
     NRF_LOG_INFO("data_decrypted:");
-    for(int i = 0; i < 16; i++){
+    for(int i = 0; i < sizeof(data_decrypted); i++){
         NRF_LOG_INFO("%d", data_decrypted[i]);
     }
 }
 
-void set_nonce_from_char(ble_evt_t const* p_ble_evt){
-    uint8_t* data = p_ble_evt->evt.gatts_evt.params.write.data;
-    nrf_ecb_hal_data_t m_ecb_data; 
+void set_pin(ble_evt_t const* enc_key_event){
+    uint8_t* enc_key_data = enc_key_event->evt.gatts_evt.params.write.data;
+    uint8_t* enc_key_mac = enc_key_event->evt.gatts_evt.params.write.data+4;
 
-    memcpy(&m_ecb_data.key[0], KEY, sizeof(KEY));
-    memcpy(&m_ecb_data.cleartext[0], data, 16);
-    
-    NRF_LOG_INFO("cleartext:");
-    for(int i = 0; i < 16; i++){
-        NRF_LOG_INFO("%d", m_ecb_data.cleartext[i]);
-    }
+    nrf_crypto_aead_context_t gcm_ctx;
+    nrf_crypto_aead_info_t const* p_gcm_k128_info = &g_nrf_crypto_aes_gcm_128_info;
+    uint32_t ret_val = nrf_crypto_aead_init(&gcm_ctx, p_gcm_k128_info, KEY);
+    APP_ERROR_CHECK(ret_val);
 
-    sd_ecb_block_encrypt(&m_ecb_data);
+    uint8_t pin_data[4] = {0};
+    uint8_t adata[2] = {0};
+    ret_val = nrf_crypto_aead_crypt(&gcm_ctx,
+        NRF_CRYPTO_DECRYPT,
+        nonce.data, 
+        sizeof(nonce.data),
+        adata, //adata,
+        0, //sizeof(adata),
+        enc_key_data,
+        4, //sizeof(data_encrypted),
+        pin_data,
+        enc_key_mac,
+        16); //sizeof(mac));
+    APP_ERROR_CHECK(ret_val);    
 
-    NRF_LOG_INFO("ciphertext:");
-    for(int i = 0; i < 16; i++){
-        NRF_LOG_INFO("%d", m_ecb_data.ciphertext[i]);
-    }
-
-    //retrieve response
-    uint32_t pin;
-    uint8_t response[6] = {0};
-    memcpy(&response[0], &m_ecb_data.ciphertext[0], sizeof(response));    
-
-    /*for(size_t i=0; i<sizeof(uint32_t); i++){
-        const uint8_t bit_shifts = ( sizeof(uint32_t)-1-i ) * 8;
-        pin |= (uint32_t)response[i] << bit_shifts;
-    }*/
-
-    for(size_t i=0; i<sizeof(uint32_t); i++){
-        pin |= (uint32_t)response[i] << 8*i;
+    uint32_t pin = 0;
+    for(size_t i=0; i<sizeof(pin); i++){
+        const uint8_t bit_shifts = ( sizeof(pin)-1-i ) * 8;
+        pin |= (uint32_t)pin_data[i] << bit_shifts;
     }
 
     uint8_t new_key[12]; //prevent overflow allows full range of uint32_t
-    sprintf((char*)new_key, "%ld", pin);
+    sprintf((char*)new_key, "%06u", pin);
     NRF_LOG_INFO("new_key: %s", new_key);
     update_passkey(new_key);
 }

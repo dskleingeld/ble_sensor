@@ -454,10 +454,6 @@ macro(nRF5x_addBLECrypto)
 endmacro(nRF5x_addBLECrypto)
 
 macro(nRF5x_addAuthCrypt)
-    include_directories(
-        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_aead.h"
-    )
-
     list(APPEND SDK_SOURCE_FILES
         "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_aead.c"
         "${NRF5_SDK_PATH}/components/libraries/crypto/backend/mbedtls/mbedtls_backend_aes_aead.c"
@@ -475,6 +471,16 @@ macro(nRF5x_addAuthCrypt)
     )
     message(STATUS "Including AEAD encryption+authentication backends") 
 endmacro(nRF5x_addBLECrypto)
+
+macro(nRF5x_addAes)
+
+    list(APPEND SDK_SOURCE_FILES
+        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_aes.c"
+        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/mbedtls/mbedtls_backend_aes.c"
+    )
+
+    message(STATUS "Including AES") 
+endmacro(nRF5x_addAes)        
 
 # adds Bluetooth Low Energy advertising support library
 macro(nRF5x_addBLEPeerManager)
