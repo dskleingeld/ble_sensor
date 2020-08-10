@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "ble_gatts.h"

@@ -30,7 +30,7 @@ int main() {
     // Start execution.
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
-    advertising_start(true);
+    advertising_start();
     NRF_LOG_INFO("version 2.0");
 
     // Enter main loop.

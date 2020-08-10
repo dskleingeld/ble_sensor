@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 #include "ble_gatts.h"
 
@@ -8,15 +10,17 @@ void init_passkey();
 
 struct NonceState {
     ble_gatts_char_handles_t handle;
-    uint16_t uuid;
+    const uint16_t uuid;
     uint8_t data[12];
 };
 struct PinState {
     ble_gatts_char_handles_t handle;
-    uint16_t uuid;
+    const uint16_t uuid;
     uint8_t data[16];
 };
 
+static uint16_t const NONCE_UUID = 4;
+static uint16_t const PIN_UUID = 5;
 extern struct NonceState nonce;
 extern struct PinState pin_state;
 

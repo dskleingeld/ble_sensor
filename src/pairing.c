@@ -72,9 +72,6 @@ static void pm_evt_handler(pm_evt_t const * p_evt)
         randomize_passkey();
         m_conn_handle = BLE_CONN_HANDLE_INVALID;
         break;
-    case PM_EVT_PEERS_DELETE_SUCCEEDED:
-        advertising_start(false);
-        break;
     default:
         break;
     }
@@ -121,13 +118,11 @@ void update_passkey(uint8_t newkey[]){
 }
 
 void init_passkey(){
-    uint8_t newkey[] = "123456";
-    update_passkey(newkey);
-    //randomize_passkey();
+    randomize_passkey();
 }
 
 struct NonceState nonce = {
-    .uuid = 4,
+    .uuid = NONCE_UUID,
 };
     
 void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
@@ -165,7 +160,7 @@ void add_nonce_characteristics(uint8_t base_index, uint16_t service_handle) {
 }
 
 struct PinState pin_state = {
-    .uuid = 5,
+    .uuid = PIN_UUID,
 };
 
 void add_pin_characteristics(uint8_t base_index, uint16_t service_handle) {
@@ -202,71 +197,14 @@ void add_pin_characteristics(uint8_t base_index, uint16_t service_handle) {
     APP_ERROR_CHECK(err_code);
 }
 
-void test(){
-    nrf_crypto_aead_context_t gcm_ctx;
-    nrf_crypto_aead_info_t const* p_gcm_k128_info = &g_nrf_crypto_aes_gcm_128_info; // for a 128-bit key
-    uint32_t ret_val = nrf_crypto_aead_init(&gcm_ctx, p_gcm_k128_info, KEY);
-    APP_ERROR_CHECK(ret_val);
-
-    uint8_t data[4] = {0};
-    data[1] = 0;
-    data[2] = 0;
-    data[3] = 28;
-    uint8_t data_encrypted[4] = {0};
-    uint8_t data_decrypted[4] = {0};
-    uint8_t nonce[12] = {0};
-    uint8_t mac[16] = {16};
-    uint8_t adata[2] = {0};
-
-    ret_val = nrf_crypto_aead_crypt(&gcm_ctx,
-        NRF_CRYPTO_ENCRYPT,
-        nonce, 
-        sizeof(nonce),
-        adata,//adata,
-        0, //sizeof(adata), //sizeof(adata),
-        data,
-        sizeof(data),
-        data_encrypted,
-        mac,
-        sizeof(mac)); //sizeof(mac));
-    APP_ERROR_CHECK(ret_val);
-
-    NRF_LOG_INFO("data_encrypted:");
-    for(int i = 0; i < sizeof(data_encrypted); i++){
-        NRF_LOG_INFO("%d", data_encrypted[i]);
-    }
-
-    NRF_LOG_INFO("mac:");
-    for(int i = 0; i < sizeof(mac); i++){
-        NRF_LOG_INFO("%d", mac[i]);
-    }
-
-    ret_val = nrf_crypto_aead_crypt(&gcm_ctx,
-        NRF_CRYPTO_DECRYPT,
-        nonce, 
-        sizeof(nonce),
-        adata,//adata,
-        0, //sizeof(adata), //sizeof(adata),
-        data_encrypted,
-        sizeof(data_encrypted),
-        data_decrypted,
-        mac,
-        sizeof(mac)); //sizeof(mac));
-    APP_ERROR_CHECK(ret_val);
-
-    NRF_LOG_INFO("data_decrypted:");
-    for(int i = 0; i < sizeof(data_decrypted); i++){
-        NRF_LOG_INFO("%d", data_decrypted[i]);
-    }
-}
 
 void set_pin(ble_evt_t const* enc_key_event){
-    uint8_t* enc_key_data = enc_key_event->evt.gatts_evt.params.write.data;
-    uint8_t* enc_key_mac = enc_key_event->evt.gatts_evt.params.write.data+4;
+    uint8_t* enc_key_data = (uint8_t*)enc_key_event->evt.gatts_evt.params.write.data;
+    uint8_t* enc_key_mac = (uint8_t*)enc_key_event->evt.gatts_evt.params.write.data+4;
 
     nrf_crypto_aead_context_t gcm_ctx;
     nrf_crypto_aead_info_t const* p_gcm_k128_info = &g_nrf_crypto_aes_gcm_128_info;
-    uint32_t ret_val = nrf_crypto_aead_init(&gcm_ctx, p_gcm_k128_info, KEY);
+    uint32_t ret_val = nrf_crypto_aead_init(&gcm_ctx, p_gcm_k128_info, (uint8_t*)KEY);
     APP_ERROR_CHECK(ret_val);
 
     uint8_t pin_data[4] = {0};
@@ -291,7 +229,7 @@ void set_pin(ble_evt_t const* enc_key_event){
     }
 
     uint8_t new_key[12]; //prevent overflow allows full range of uint32_t
-    sprintf((char*)new_key, "%06u", pin);
+    sprintf((char*)new_key, "%06lu", pin);
     NRF_LOG_INFO("new_key: %s", new_key);
     update_passkey(new_key);
 }

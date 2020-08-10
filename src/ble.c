@@ -83,6 +83,8 @@
 #include "ble_config.h"
 #include "service_if.h"
 #include "pairing.h"
+#include "read.h"
+#include "write.h"
 
 NRF_BLE_QWR_DEF(m_qwr);                                                             /**< Queued Writes structure.*/
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
@@ -93,7 +95,10 @@ uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;
 // TODO add own UUIDs.
 static ble_uuid_t m_adv_uuids[] =                                                   /**< Universally unique service identifiers. */
 {
-    {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
+    {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE},
+    {NONCE_UUID, BLE_UUID_TYPE_BLE},
+    {PIN_UUID, BLE_UUID_TYPE_BLE},
+    //{notify.uuid, BLE_UUID_TYPE_BLE},
 };
 
 
@@ -384,13 +389,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             passkey);
         APP_ERROR_CHECK(err_code);*/ //TODO not doing this anymore right?
         break;
-    case BLE_GAP_EVT_PASSKEY_DISPLAY:
-        {
-        char to_show[6 + 1];
-        memcpy(to_show, p_ble_evt->evt.gap_evt.params.passkey_display.passkey, 6);
-        to_show[6] = 0;
-        NRF_LOG_INFO("Passkey: %s", nrf_log_push(to_show));
-        } break;
     case BLE_GAP_EVT_AUTH_STATUS:
         NRF_LOG_INFO("BLE_GAP_EVT_AUTH_STATUS: status=0x%x bond=0x%x lv4: %d kdist_own:0x%x kdist_peer:0x%x",
             p_ble_evt->evt.gap_evt.params.auth_status.auth_status,
@@ -399,7 +397,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             *((uint8_t *)&p_ble_evt->evt.gap_evt.params.auth_status.kdist_own),
             *((uint8_t *)&p_ble_evt->evt.gap_evt.params.auth_status.kdist_peer));
         break;
-
     case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
         NRF_LOG_INFO("BLE_GAP_EVT_LESC_DHKEY_REQUEST");
         break;
@@ -474,29 +471,12 @@ void log_init()
 }
 
 
-/**@brief Clear bond information from persistent storage.
- */
-static void delete_bonds(void)
-{
-    ret_code_t err_code;
-
-    NRF_LOG_INFO("Erase bonds!");
-
-    err_code = pm_peers_delete();
-    APP_ERROR_CHECK(err_code);
-}
-
 /**@brief Function for starting advertising.
  */
-void advertising_start(bool erase_bonds)
+void advertising_start()
 {
-    if (erase_bonds == true) {
-        delete_bonds();
-        // Advertising is started by PM_EVT_PEERS_DELETE_SUCCEEDED event.
-    } else {
-        uint32_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
-        APP_ERROR_CHECK(err_code);
-    }
+    uint32_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+    APP_ERROR_CHECK(err_code);
 }
 
 
