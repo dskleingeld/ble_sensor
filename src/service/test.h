@@ -4,12 +4,12 @@
 #include <stdbool.h>
 #include "ble_gatts.h"
 
-struct NotifyState {
+struct TestState {
     ble_gatts_char_handles_t handle;
     uint16_t uuid;
     uint8_t data[20];
     bool notify_enabled;
 };
-extern struct NotifyState notify;
+extern struct TestState test_state;
 
-void add_notify_characteristics(uint8_t base_index, uint16_t service_handle);
+void add_test_characteristics(uint8_t base_index, uint16_t service_handle);

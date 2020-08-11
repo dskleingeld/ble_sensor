@@ -5,12 +5,12 @@
 
 #include "ble.h"
 #include "service_if.h"
+#include "timers.h"
 
 int main() {
 
     // Initialize.
     log_init();
-    NRF_LOG_DEBUG("0"); 
     timers_init();
     power_management_init();
     uint32_t ret_val = nrf_crypto_init();
@@ -31,17 +31,18 @@ int main() {
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
     advertising_start();
+    sensor_timers_start();
     NRF_LOG_INFO("version 2.0");
 
     // Enter main loop.
-    uint32_t i = 0;
+    //uint32_t i = 0;
     for (;;){
         //sends chip to sleep, dont want that now!
         //later we will use timers and will re-enable this
         idle_state_handle(); 
         //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
         
-        for (;;){
+        /*for (;;){
             bool success = test_notify((uint8_t*)&i);
             if(success){break;}
         }
@@ -50,6 +51,6 @@ int main() {
         if (i%20 == 0) {
             NRF_LOG_INFO("still alive");
             NRF_LOG_FLUSH();
-        }
+        }*/
     }
 }

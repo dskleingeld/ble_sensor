@@ -7,7 +7,7 @@
 
 #include "service_if.h"
 
-#include "notify.h"
+#include "test.h"
 #include "read.h"
 #include "write.h"
 #include "../pairing.h"
@@ -37,9 +37,7 @@ uint32_t bluetooth_init() {
         &ble_uuid, &service_handle);
     APP_ERROR_CHECK(err_code);
 
-    add_read_characteristics(base_index, service_handle);
-    add_notify_characteristics(base_index, service_handle);
-    add_write_characteristics(base_index, service_handle);
+    add_test_characteristics(base_index, service_handle);
     add_nonce_characteristics(base_index, service_handle);
     add_pin_characteristics(base_index, service_handle);
     return NRF_SUCCESS;
@@ -50,18 +48,16 @@ void handle_write(ble_evt_t const* p_ble_evt){
     uint16_t char_written_to = p_evt_write.handle;
 
     // Custom value CCCD written to and value is right length, i.e 2 bytes.
-    if (char_written_to == notify.handle.cccd_handle 
+    if (char_written_to == test_state.handle.cccd_handle 
         && p_evt_write.len == 2) {
         
         if(ble_srv_is_notification_enabled(p_evt_write.data)){
             NRF_LOG_INFO("notify enabled");
-            notify.notify_enabled = true;
+            test_state.notify_enabled = true;
         } else {
             NRF_LOG_INFO("notify disabled");
-            notify.notify_enabled = false;
+            test_state.notify_enabled = false;
         }
-    } else if (char_written_to == write.handle.value_handle){
-        NRF_LOG_INFO("written to characteristic");
     } else if (char_written_to == pin_state.handle.value_handle){
         set_pin(p_ble_evt);
     }
@@ -78,7 +74,7 @@ void bluetooth_on_ble_evt(ble_evt_t const* p_ble_evt) {
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("disconnected");
             connection_handle = BLE_CONN_HANDLE_INVALID;
-            notify.notify_enabled = false;
+            test_state.notify_enabled = false;
             break;
         case BLE_GATTS_EVT_WRITE:
             handle_write(p_ble_evt);
@@ -95,38 +91,4 @@ void bluetooth_on_ble_evt(ble_evt_t const* p_ble_evt) {
 
 bool connected(){
     return connection_handle != BLE_CONN_HANDLE_INVALID;
-}
-
-// attribute-info 00002a05-0000-1000-8000-00805f9b34fb
-//TODO send test data here
-bool test_notify(uint8_t* data) {
-    ble_gatts_hvx_params_t params;
-    uint16_t len = 4;
-
-    memset(&params, 0, sizeof(params));
-    params.type   = BLE_GATT_HVX_NOTIFICATION;
-    params.handle = notify.handle.value_handle;
-    params.p_data = data;
-    params.p_len  = &len;
-    
-    //https://github.com/NordicPlayground/nRF5x-custom-ble-service-tutorial
-
-    if(notify.notify_enabled){
-        uint32_t err_code = sd_ble_gatts_hvx(connection_handle, &params);
-        switch(err_code) {
-            case NRF_ERROR_RESOURCES:
-                return false;
-            //case BLE_ERROR_GATTS_SYS_ATTR_MISSING: //13313
-            //    return true; //no idea why we do this
-            default:
-                break;
-        }
-        
-        if (err_code != 0){
-            NRF_LOG_ERROR(nrf_strerror_get(err_code));
-            NRF_LOG_ERROR("%d", err_code);
-            APP_ERROR_CHECK(err_code);
-        }
-    }
-    return true;
 }

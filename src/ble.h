@@ -1,7 +1,6 @@
 #pragma once
 
 void log_init();
-void timers_init();
 void power_management_init();
 void ble_stack_init();
 void peer_manager_init();
