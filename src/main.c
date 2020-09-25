@@ -31,7 +31,6 @@ int main() {
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
     advertising_start();
-    sensor_timers_start();
     NRF_LOG_INFO("version 2.0");
 
     // Enter main loop.

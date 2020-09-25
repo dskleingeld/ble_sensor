@@ -125,22 +125,29 @@ include_directories(
         src, 
         src/service
         src/sensors
+        dependencies/bitspec/c_src
 )
 
 list(APPEND SOURCE_FILES "src/service/service_if.c")
 list(APPEND SOURCE_FILES "src/service/read.c")
 list(APPEND SOURCE_FILES "src/service/test.c")
 list(APPEND SOURCE_FILES "src/service/write.c")
-list(APPEND SOURCE_FILES "src/pairing.c")
 list(APPEND SOURCE_FILES "src/sensors/timers.c")
+list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
+list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
+list(APPEND SOURCE_FILES "src/pairing.c")
 
 list(APPEND SOURCE_FILES "src/ble.c")
 list(APPEND SOURCE_FILES "src/main.c")
+
+#used std libs
+list(APPEND STD_LIBS "m")
+
 ##############################################################################
 # EXECUTABLES
 ##############################################################################
 nRF5x_addExecutable(${PROJECT_NAME} "${SOURCE_FILES}")
-target_link_libraries(${PROJECT_NAME} "${SDK_LIBS}")
+target_link_libraries(${PROJECT_NAME} "${STD_LIBS}")
 
 
 ##############################################################################
