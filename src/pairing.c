@@ -220,7 +220,18 @@ void set_pin(ble_evt_t const* enc_key_event){
         pin_data,
         enc_key_mac,
         16); //sizeof(mac));
-    APP_ERROR_CHECK(ret_val);    
+    
+    // check for errors
+    switch(ret_val) {
+    case 0:
+        break;
+    case NRF_ERROR_CRYPTO_AEAD_INVALID_MAC:
+        NRF_LOG_INFO("set pin has invalid mac");
+        return;
+    default:
+        APP_ERROR_CHECK(ret_val);    
+        return;
+    }
 
     uint32_t pin = 0;
     for(size_t i=0; i<sizeof(pin); i++){
