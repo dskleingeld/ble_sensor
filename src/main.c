@@ -34,22 +34,7 @@ int main() {
     NRF_LOG_INFO("version 2.0");
 
     // Enter main loop.
-    //uint32_t i = 0;
     for (;;){
-        //sends chip to sleep, dont want that now!
-        //later we will use timers and will re-enable this
         idle_state_handle(); 
-        //nrf_delay_ms(100); //needed to prevent nrf Queue from overflowing
-        
-        /*for (;;){
-            bool success = test_notify((uint8_t*)&i);
-            if(success){break;}
-        }
-        
-        i+=1;
-        if (i%20 == 0) {
-            NRF_LOG_INFO("still alive");
-            NRF_LOG_FLUSH();
-        }*/
     }
 }

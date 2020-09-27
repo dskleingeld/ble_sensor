@@ -1,11 +1,12 @@
 .vscode
 SDK*
 build
-softdevice
+softdevice/s132/*.hex
 *.bin
 *.hex
 *.out
 *.map
+.clangd
 cmake/cmake_install.cmake
 cmake/CMakeCache.txt
 cmake/CMakeFiles
