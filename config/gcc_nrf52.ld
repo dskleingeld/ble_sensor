@@ -138,11 +138,17 @@ SECTIONS
     KEEP(*(SORT(.log_backends*)))
     PROVIDE(__stop_log_backends = .);
   } > FLASH
-    .nrf_balloc :
+  .nrf_balloc :
   {
     PROVIDE(__start_nrf_balloc = .);
     KEEP(*(.nrf_balloc))
     PROVIDE(__stop_nrf_balloc = .);
+  } > FLASH
+  .crypto_data :
+  {
+    PROVIDE(__start_crypto_data = .);
+    KEEP(*(SORT(.crypto_data)))
+    PROVIDE(__stop_crypto_data = .);
   } > FLASH
 
 } INSERT AFTER .text

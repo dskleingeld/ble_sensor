@@ -1,0 +1,6 @@
+[submodule "dependencies/micro-ecc"]
+	path = dependencies/micro-ecc
+	url = https://github.com/kmackay/micro-ecc
+[submodule "dependencies/bitspec"]
+	path = dependencies/bitspec
+	url = https://github.com/dskleingeld/bitspec

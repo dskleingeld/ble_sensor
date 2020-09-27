@@ -3,8 +3,8 @@
 ##############################################################################
 cmake_minimum_required(VERSION 3.13)
 
-set(PROJECT_NA "blinky")
-project(ble_app_${PROJECT_NA} C CXX ASM)
+set(PROJECT_NA "sensor")
+project(ble_app_${PROJECT_NA} C ASM)
 
 # set build type = Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -13,13 +13,12 @@ message("\n" "=========================================")
 message("Project: ${PROJECT_NAME} ")
 message("=========================================")
 
-set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 99)
 
 # You must set these variables with your own path
 set(NRF_TARGET "nrf52") # nrf51 or nrf52
 set(ARM_NONE_EABI_TOOLCHAIN_PATH "/usr") # Path to root folder 
-set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK") # Path to root folders
+set(NRF5_SDK_PATH "/home/kleingeld/Documents/Projects/ble_sensor/SDK_17.0.0") # Path to root folders
 set(OPENOCD "openocd")	# Path to openocd if not in path
 set(SOFTDEVICE "softdevice/s132/s132_nrf52_7.0.1_softdevice.hex")
 #set(SOFTDEVICE "softdevice/s113/s113_nrf52_7.0.1_softdevice.hex") #dont forget to adjust linker memory settings
@@ -49,11 +48,14 @@ nRF5x_addBLEService(ble_lbs_c)
 nRF5x_addBLEService(ble_lbs)
 nRF5x_addAppFDS()
 nRF5x_addBLEPeerManager()
+nRF5x_addBLECrypto()
 nRF5x_addBLEAdvertising()
 nRF5x_addSensorSim()
 nRF5x_addBLEDiscovery()
 nRF5x_addBLEgq()
 nRF5x_addBLEScan()
+nRF5x_addAuthCrypt()
+nRF5x_addAes()
 
 # Libraries not used
 # nRF5x_addAppScheduler()
@@ -115,36 +117,38 @@ add_custom_target(FLASH_SOFTDEVICE
 )
 
 ##############################################################################
-# NEW SDK LIBRARIES 
-##############################################################################
-#        include_directories(                
-#                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs"               
-#         
-#        )
-#
-#        list(APPEND SDK_SOURCE_FILES              
-#                "${NRF5_SDK_PATH}/components/ble/ble_services/ble_lbs/ble_lbs.c"               
-#        )
-
-##############################################################################
 # SOURCE CODE
 ##############################################################################
 
 # own libs
 include_directories(
         src, 
-#        src/service
+        src/service
+        src/sensors
+        dependencies/bitspec/c_src
 )
 
-#list(APPEND SOURCE_FILES "src/service/ble_lbs.c")
-#list(APPEND SOURCE_FILES "src/init_ble.c")
-list(APPEND SOURCE_FILES "src/ble.cpp")
-list(APPEND SOURCE_FILES "src/service_if.cpp")
-list(APPEND SOURCE_FILES "src/main.cpp")
+list(APPEND SOURCE_FILES "src/service/service_if.c")
+list(APPEND SOURCE_FILES "src/service/read.c")
+list(APPEND SOURCE_FILES "src/service/test.c")
+list(APPEND SOURCE_FILES "src/service/write.c")
+list(APPEND SOURCE_FILES "src/sensors/timers.c")
+list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
+list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
+list(APPEND SOURCE_FILES "src/pairing.c")
+
+list(APPEND SOURCE_FILES "src/ble.c")
+list(APPEND SOURCE_FILES "src/main.c")
+
+#used std libs
+list(APPEND STD_LIBS "m")
+
 ##############################################################################
 # EXECUTABLES
 ##############################################################################
 nRF5x_addExecutable(${PROJECT_NAME} "${SOURCE_FILES}")
+target_link_libraries(${PROJECT_NAME} "${STD_LIBS}")
+
 
 ##############################################################################
 # .hex, .map and .bin file 

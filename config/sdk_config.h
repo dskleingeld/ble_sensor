@@ -48,7 +48,12 @@
 #endif
 
 #define DEBUG 1
+#define NRF_LOG_DEFAULT_LEVEL 4
+#define NRF_LOG_DEFERRED 1
+#define NRF_LOG_BACKEND_SERIAL_USES_RTT 1
 
+// </h> 
+//==========================================================
 // <h> Board Support 
 
 //==========================================================
@@ -114,6 +119,13 @@
 #define NRF_BLE_GATT_ENABLED 1
 #endif
 
+// <q> NRF_BLE_LESC_ENABLED  - nrf_ble_lesc - Le Secure Connection
+ 
+
+#ifndef NRF_BLE_LESC_ENABLED
+#define NRF_BLE_LESC_ENABLED 1
+#endif
+
 // <e> NRF_BLE_QWR_ENABLED - nrf_ble_qwr - Queued writes support module (prepare/execute write)
 //==========================================================
 #ifndef NRF_BLE_QWR_ENABLED
@@ -177,7 +189,7 @@
 // <i> If set to true, you need to call nrf_ble_lesc_request_handler() in the main loop to respond to LESC-related BLE events. If LESC support is not required, set this to false to save code space.
 
 #ifndef PM_LESC_ENABLED
-#define PM_LESC_ENABLED 0
+#define PM_LESC_ENABLED 1
 #endif
 
 // <e> PM_RA_PROTECTION_ENABLED - Enable/disable protection against repeated pairing attempts in Peer Manager.
@@ -585,7 +597,14 @@
 #define NRF_CRYPTO_ENABLED 1
 #endif
 // <o> NRF_CRYPTO_ALLOCATOR  - Memory allocator
- 
+
+#ifndef NRF_CRYPTO_AEAD_ENABLED
+#define NRF_CRYPTO_AEAD_ENABLED 1
+#endif
+
+#ifndef NRF_CRYPTO_AES_ENABLED
+#define NRF_CRYPTO_AES_ENABLED 1
+#endif
 
 // <i> Choose memory allocator used by nrf_crypto. Default is alloca if possible or nrf_malloc otherwise. If 'User macros' are selected, the user has to create 'nrf_crypto_allocator.h' file that contains NRF_CRYPTO_ALLOC, NRF_CRYPTO_FREE, and NRF_CRYPTO_ALLOC_ON_STACK.
 // <0=> Default 
@@ -595,7 +614,7 @@
 // <4=> SDK Memory Manager (nrf_malloc) 
 
 #ifndef NRF_CRYPTO_ALLOCATOR
-#define NRF_CRYPTO_ALLOCATOR 0
+#define NRF_CRYPTO_ALLOCATOR 4
 #endif
 
 // <e> NRF_CRYPTO_BACKEND_CC310_BL_ENABLED - Enable the ARM Cryptocell CC310 reduced backend.
@@ -849,7 +868,7 @@
  
 
 #ifndef NRF_CRYPTO_BACKEND_CC310_RNG_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_RNG_ENABLED 1
+#define NRF_CRYPTO_BACKEND_CC310_RNG_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_CC310_INTERRUPTS_ENABLED  - Enable Interrupts while support using CC310.
@@ -880,27 +899,27 @@
 // <e> NRF_CRYPTO_BACKEND_MBEDTLS_ENABLED - Enable the mbed TLS backend.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ENABLED 0
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ENABLED 1
 #endif
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_ENABLED  - Enable the AES CBC mode mbed TLS.
  
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_CTR_ENABLED  - Enable the AES CTR mode using mbed TLS.
  
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_AES_CTR_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CTR_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CTR_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_CFB_ENABLED  - Enable the AES CFB mode using mbed TLS.
  
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_AES_CFB_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CFB_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CFB_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_ECB_ENABLED  - Enable the AES ECB mode using mbed TLS.
@@ -914,21 +933,21 @@
  
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_MAC_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_MAC_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CBC_MAC_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_CMAC_ENABLED  - Enable the AES CMAC mode using mbed TLS.
  
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_AES_CMAC_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CMAC_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CMAC_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_CCM_ENABLED  - Enable the AES CCM mode using mbed TLS.
  
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_AES_CCM_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CCM_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_AES_CCM_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_AES_GCM_ENABLED  - Enable the AES GCM mode using mbed TLS.
@@ -944,7 +963,7 @@
 // <i> Enable this setting if you need secp192r1 (NIST 192-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224R1_ENABLED  - Enable secp224r1 (NIST 224-bit) curve
@@ -953,7 +972,7 @@
 // <i> Enable this setting if you need secp224r1 (NIST 224-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256R1_ENABLED  - Enable secp256r1 (NIST 256-bit) curve
@@ -962,7 +981,7 @@
 // <i> Enable this setting if you need secp256r1 (NIST 256-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP384R1_ENABLED  - Enable secp384r1 (NIST 384-bit) curve
@@ -971,7 +990,7 @@
 // <i> Enable this setting if you need secp384r1 (NIST 384-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP384R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP384R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP384R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP521R1_ENABLED  - Enable secp521r1 (NIST 521-bit) curve
@@ -980,7 +999,7 @@
 // <i> Enable this setting if you need secp521r1 (NIST 521-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP521R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP521R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP521R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192K1_ENABLED  - Enable secp192k1 (Koblitz 192-bit) curve
@@ -989,7 +1008,7 @@
 // <i> Enable this setting if you need secp192k1 (Koblitz 192-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192K1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192K1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP192K1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224K1_ENABLED  - Enable secp224k1 (Koblitz 224-bit) curve
@@ -998,7 +1017,7 @@
 // <i> Enable this setting if you need secp224k1 (Koblitz 224-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224K1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224K1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP224K1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256K1_ENABLED  - Enable secp256k1 (Koblitz 256-bit) curve
@@ -1007,7 +1026,7 @@
 // <i> Enable this setting if you need secp256k1 (Koblitz 256-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256K1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256K1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_SECP256K1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP256R1_ENABLED  - Enable bp256r1 (Brainpool 256-bit) curve
@@ -1016,7 +1035,7 @@
 // <i> Enable this setting if you need bp256r1 (Brainpool 256-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP256R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP256R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP256R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP384R1_ENABLED  - Enable bp384r1 (Brainpool 384-bit) curve
@@ -1025,7 +1044,7 @@
 // <i> Enable this setting if you need bp384r1 (Brainpool 384-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP384R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP384R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP384R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP512R1_ENABLED  - Enable bp512r1 (Brainpool 512-bit) curve
@@ -1034,7 +1053,7 @@
 // <i> Enable this setting if you need bp512r1 (Brainpool 512-bit) support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP512R1_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP512R1_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_BP512R1_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_ECC_CURVE25519_ENABLED  - Enable Curve25519 curve
@@ -1043,7 +1062,7 @@
 // <i> Enable this setting if you need Curve25519 support using MBEDTLS
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_ECC_CURVE25519_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_CURVE25519_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_ECC_CURVE25519_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA256_ENABLED  - Enable mbed TLS SHA-256 hash functionality.
@@ -1052,7 +1071,7 @@
 // <i> mbed TLS backend implementation for SHA-256.
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA256_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA256_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA256_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA512_ENABLED  - Enable mbed TLS SHA-512 hash functionality.
@@ -1061,7 +1080,7 @@
 // <i> mbed TLS backend implementation for SHA-512.
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA512_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA512_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_HASH_SHA512_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA256_ENABLED  - Enable mbed TLS HMAC using SHA-256.
@@ -1070,7 +1089,7 @@
 // <i> mbed TLS backend implementation for HMAC using SHA-256.
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA256_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA256_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA256_ENABLED 0
 #endif
 
 // <q> NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA512_ENABLED  - Enable mbed TLS HMAC using SHA-512.
@@ -1079,7 +1098,7 @@
 // <i> mbed TLS backend implementation for HMAC using SHA-512.
 
 #ifndef NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA512_ENABLED
-#define NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA512_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MBEDTLS_HMAC_SHA512_ENABLED 0
 #endif
 
 // </e>
@@ -1087,7 +1106,7 @@
 // <e> NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED - Enable the micro-ecc backend.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED
-#define NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED 0
+#define NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED 1
 #endif
 // <q> NRF_CRYPTO_BACKEND_MICRO_ECC_ECC_SECP192R1_ENABLED  - Enable secp192r1 (NIST 192-bit) curve
  
@@ -1132,7 +1151,7 @@
 // <i> The nRF HW backend provide access to RNG peripheral in nRF5x devices.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED
-#define NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED 0
+#define NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED 1
 #endif
 // <q> NRF_CRYPTO_BACKEND_NRF_HW_RNG_MBEDTLS_CTR_DRBG_ENABLED  - Enable mbed TLS CTR-DRBG algorithm.
  
@@ -1279,6 +1298,30 @@
 #endif
 
 // </e>
+
+// <h> nrf_crypto_rng - RNG Configuration
+
+//==========================================================
+// <q> NRF_CRYPTO_RNG_STATIC_MEMORY_BUFFERS_ENABLED  - Use static memory buffers for context and temporary init buffer.
+ 
+
+// <i> Always recommended when using the nRF HW RNG as the context and temporary buffers are small. Consider disabling if using the CC310 RNG in a RAM constrained application. In this case, memory must be provided to nrf_crypto_rng_init, or it can be allocated internally provided that NRF_CRYPTO_ALLOCATOR does not allocate memory on the stack.
+
+#ifndef NRF_CRYPTO_RNG_STATIC_MEMORY_BUFFERS_ENABLED
+#define NRF_CRYPTO_RNG_STATIC_MEMORY_BUFFERS_ENABLED 1
+#endif
+
+// <q> NRF_CRYPTO_RNG_AUTO_INIT_ENABLED  - Initialize the RNG module automatically when nrf_crypto is initialized.
+ 
+
+// <i> Automatic initialization is only supported with static or internally allocated context and temporary memory.
+
+#ifndef NRF_CRYPTO_RNG_AUTO_INIT_ENABLED
+#define NRF_CRYPTO_RNG_AUTO_INIT_ENABLED 1
+#endif
+
+// </h> 
+//==========================================================
 
 // </h> 
 //==========================================================
@@ -3167,7 +3210,7 @@
 // <e> NRFX_RNG_ENABLED - nrfx_rng - RNG peripheral driver
 //==========================================================
 #ifndef NRFX_RNG_ENABLED
-#define NRFX_RNG_ENABLED 0
+#define NRFX_RNG_ENABLED 1
 #endif
 // <q> NRFX_RNG_CONFIG_ERROR_CORRECTION  - Error correction
  
@@ -3904,7 +3947,7 @@
 // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
 //==========================================================
 #ifndef NRFX_TIMER_ENABLED
-#define NRFX_TIMER_ENABLED 0
+#define NRFX_TIMER_ENABLED 1
 #endif
 // <q> NRFX_TIMER0_ENABLED  - Enable TIMER0 instance
  
@@ -3938,7 +3981,7 @@
  
 
 #ifndef NRFX_TIMER4_ENABLED
-#define NRFX_TIMER4_ENABLED 0
+#define NRFX_TIMER4_ENABLED 1
 #endif
 
 // <o> NRFX_TIMER_DEFAULT_CONFIG_FREQUENCY  - Timer frequency if in Timer mode
@@ -5299,7 +5342,7 @@
 // <e> RNG_ENABLED - nrf_drv_rng - RNG peripheral driver - legacy layer
 //==========================================================
 #ifndef RNG_ENABLED
-#define RNG_ENABLED 0
+#define RNG_ENABLED 1
 #endif
 // <q> RNG_CONFIG_ERROR_CORRECTION  - Error correction
  
@@ -5612,7 +5655,7 @@
 // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver - legacy layer
 //==========================================================
 #ifndef TIMER_ENABLED
-#define TIMER_ENABLED 0
+#define TIMER_ENABLED 1
 #endif
 // <o> TIMER_DEFAULT_CONFIG_FREQUENCY  - Timer frequency if in Timer mode
  
@@ -5700,7 +5743,7 @@
  
 
 #ifndef TIMER4_ENABLED
-#define TIMER4_ENABLED 0
+#define TIMER4_ENABLED 1
 #endif
 
 // </e>
@@ -6180,7 +6223,7 @@
 // <31=> 1024 Hz 
 
 #ifndef APP_TIMER_CONFIG_RTC_FREQUENCY
-#define APP_TIMER_CONFIG_RTC_FREQUENCY 1
+#define APP_TIMER_CONFIG_RTC_FREQUENCY 0
 #endif
 
 // <o> APP_TIMER_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -6849,7 +6892,7 @@
 // <e> MEM_MANAGER_ENABLED - mem_manager - Dynamic memory allocator
 //==========================================================
 #ifndef MEM_MANAGER_ENABLED
-#define MEM_MANAGER_ENABLED 0
+#define MEM_MANAGER_ENABLED 1
 #endif
 // <o> MEMORY_MANAGER_SMALL_BLOCK_COUNT - Size of each memory blocks identified as 'small' block.  <0-255> 
 
@@ -7336,7 +7379,7 @@
 // <e> NRF_QUEUE_ENABLED - nrf_queue - Queue module
 //==========================================================
 #ifndef NRF_QUEUE_ENABLED
-#define NRF_QUEUE_ENABLED 0
+#define NRF_QUEUE_ENABLED 1
 #endif
 // <q> NRF_QUEUE_CLI_CMDS  - Enable CLI commands specific to the module
  
@@ -12086,4 +12129,3 @@
 
 // <<< end of configuration section >>>
 #endif //SDK_CONFIG_H
-
