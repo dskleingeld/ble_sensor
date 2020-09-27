@@ -470,7 +470,7 @@ macro(nRF5x_addAuthCrypt)
         "${NRF5_SDK_PATH}/external/mbedtls/library/poly1305.c"
     )
     message(STATUS "Including AEAD encryption+authentication backends") 
-endmacro(nRF5x_addBLECrypto)
+endmacro(nRF5x_addAuthCrypt)
 
 macro(nRF5x_addAes)
 

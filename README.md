@@ -1,160 +1,92 @@
-# nRF5 CMake Framework
-This is a CMake project to program a **nRF52832 board** using CMake 3.16.0, JLink, NRFJProgrammer and NRF5 SDK 16.0. The CMake files are taken from: https://github.com/Polidea/cmake-nRF5x and https://github.com/JF002/nrf52-baseproject for reference.
+# nRF5 stlink flash
+based on: https://pcbreflux.blogspot.com/2016/09/nrf52832-first-steps-with-st-link-v2.html
 
-## How to compile and flash
-1. Download:
-	
-	* gcc arm none eabi toolchain x86-64-linux: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
-	* SDK for the nRF52 16.0: https://www.nordicsemi.com/Software-and-tools/Software/nRF5-SDK/Download#infotabs
-	* Programmer NRFJPROG: https://www.nordicsemi.com/Software-and-tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs
-	* JLink: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+- prerequisits
+ninja, cmake, gcc-arm-none-eabi
 
-2. Create a folder in /opt to unzip files, e.g. */opt/SEGGER/*
-3. Change lines **19**,**20**,**21** and **22** in the *CMakeLists.txt* file at the root project with the path for each one (toolchain,SDK and Programmer) and save it.
-	e.g. 
+- uninstall any openocd installed by apt
+- pull openocd with nrf52 fixes https://github.com/marcelobarrosalmeida/openocd_nrf52
+- follow instructions to make and install openocd with nrf52 fixes applied
 
-		set(NRF_TARGET 	"nrf52")							  # nrf51 or nrf52
-		set(ARM_NONE_EABI_TOOLCHAIN_PATH "/opt/SEGGER/gcc-arm-none-eabi-9-2019-q4-major") # Path to root folder 
-		set(NRF5_SDK_PATH "/opt/SEGGER/nRF5SDK"	)					  # Path to root folder
-		set(NRFJPROG "/opt/SEGGER/Toolchain/nrfjprog/nrfjprog")				  # Path to .bin file
+- to monitor the output use screen /dev/ttyUSB0 115200 
+(needs to be improved)
 
-4. Create a *build* folder and,
-	
-		$ cd build/	
-		$ cmake ../	
+- using sdk version 16
+- init setup,
+mkdir build && cd build
+run "cmake ../ -G Ninja"
 
-	If everything is good, you should see something like this, e.g.
+- to build
+run ninja from the build directory
 
-		-- The C compiler identification is GNU 5.4.0
-		-- The CXX compiler identification is GNU 5.4.0
-		-- The ASM compiler identification is GNU
-		-- Found assembler: /usr/bin/cc
-		-- Check for working C compiler: /usr/bin/cc
-		-- Check for working C compiler: /usr/bin/cc -- works
-		-- Detecting C compiler ABI info
-		-- Detecting C compiler ABI info - done
-		-- Detecting C compile features
-		-- Detecting C compile features - done
-		-- Check for working CXX compiler: /usr/bin/c++
-		-- Check for working CXX compiler: /usr/bin/c++ -- works
-		-- Detecting CXX compiler ABI info
-		-- Detecting CXX compiler ABI info - done
-		-- Detecting CXX compile features
-		-- Detecting CXX compile features - done
-		-- Configuring done
-		-- Generating done
-		-- Build files have been written to: /home/xXx/Downloads/nRF5-cmake-framework-master/build
+ - changes to sdk_config.h:
+NRF_SDH_BLE_VS_UUID_COUNT increased to 1
+NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE increased to 496
 
-5. Compile with make: (this will compile the source code "main.c" and flash the softdevice.hex and bin.hex to the board)
-	
-		$ make
+- how to connect for testing:
+sudo bluetoothctl
+    scan on
+    connect C6:46:56:AC:2C:4C
 
-	e.g.
+# debugging with gdb
+start gdb server: sudo openocd -d2 -f openocd_nrf52.cfg
+start gdb-multiarch: gdb-multiarch
+then load the file: file build/ble_app_blinky.out
+connect to server: tar remote localhost:3333
+reset: mon reset init
+mon reset halt
+load info: load
 
-		[ 91%] Linking C executable application-example.out
-		post build steps for application-example
-		   text	   data	    bss	    dec	    hex	filename
-		   8800	    172	    884	   9856	   2680	application-example.out
-		[ 91%] Built target application-example
-		Scanning dependencies of target FLASH_application-example
-		[ 93%] flashing application-example.hex
-		Parsing hex file.
-		Erasing page at address 0x0.
-		Erasing page at address 0x1000.
-		Erasing page at address 0x2000.
-		Applying system reset.
-		Checking that the area to write is not protected.
-		Programming device.
-		Applying system reset.
-		Run.
-		[ 93%] Built target FLASH_application-example
-		Scanning dependencies of target FLASH_SOFTDEVICE
-		[ 95%] flashing SoftDevice
-		Parsing hex file.
-		Erasing page at address 0x0.
-		Erasing page at address 0x1000.
-		.
-		.
-		.
-		Erasing page at address 0x24000.
-		Erasing page at address 0x25000.
-		Applying system reset.
-		Checking that the area to write is not protected.
-		Programming device.
-		Applying system reset.
-		Run.
-		[ 95%] Built target FLASH_SOFTDEVICE
-		Scanning dependencies of target FLASH_ERASE
-		[ 97%] erasing flashing
-		Erasing user available code and UICR flash areas.
-		Applying system reset.
-		[ 97%] Built target FLASH_ERASE
-		Scanning dependencies of target START_JLINK
-		[100%] started JLink commands
-		[100%] Built target START_JLINK
+# debugging bluetooth
+use sudo btmon to monitor bluetooth traffic
 
-## How to run monitor
-At the root folder run,
+# checking notify
+sudo bluetoothctl
+connect C6:46:56:AC:2C:4C
+menu gatt
+select-attribute 93700085-1bb7-1599-985b-f5e7dc991483
+notify on
 
-		$ ./monitor
-		
-This assume that the JLink binaries are on */opt/SEGGER/JLink/* if not, you should modify the *runJLinkEXE-nrf52* on the *RTT* folder.
+# DEV NOTES
+seems to be crashing after some time
 
-## How to print
-Set these variables in your own code
+///////////////////////////////////////////////////////////////
+out of bound authentication etc
+https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.s132.api.v7.0.1%2Fgroup___b_l_e___g_a_p___c_e_n_t_r_a_l___l_e_s_c___b_o_n_d_i_n_g___o_o_b___m_s_c.html
+[mentions example] https://devzone.nordicsemi.com/nordic/nordic-blog/b/blog/posts/nrf52832-and-android-nougat-simple-and-secure-touc
+https://devzone.nordicsemi.com/f/nordic-q-a/14743/ble-minimal-modifications-to-use-pre-shared-key-auth-and-encryption
+https://www.digikey.com/eewiki/display/Wireless/A+Basic+Introduction+to+BLE+Security#ABasicIntroductiontoBLESecurity-SecurityIssuesFacingBLE:
 
-		NRF_LOG_INIT((void*)0);
-   		NRF_LOG_DEFAULT_BACKENDS_INIT();   
-    		NRF_LOG_PROCESS();              
-        	NRF_LOG_INFO("TEXT TO PRINT\n");
-        	NRF_LOG_FLUSH();
-		
-and set these definitions on *sdk_config.h*
-    
-   		NRF_LOG_BACKEND_RTT_ENABLED 	1
-		NRF_FPRINTF_ENABLED 		1
-		NRF_FPRINTF_DOUBLE_ENABLED	1
-		NRF_LOG_ENABLED 1
-		NRF_LOG_BACKEND_UART_BAUDRATE 115200
+current plan:
+    compile time set: public keys, confirmation values
+    exchange in the clear: random nonces (investigate for possible security risks)
 
-## How to add new SDK libraries
-You have to comment-uncomment these lines in order to include a SDK library in the *CMakeLists.txt* file.
+=> can not be done using the bluez dbus api. options:
 
-		nRF5x_setup()
-		# nRF5x_addAppScheduler()
-		# nRF5x_addAppFIFO()
-		nRF5x_addAppTimer()
-		# nRF5x_addAppUART()
-		nRF5x_addAppButton()
-		nRF5x_addBSP(TRUE FALSE FALSE) # (btn atn_btn nfc)
-		nRF5x_addBLEGATT()
-		# nRF5x_addBLEService(ble_bas)
-		# nRF5x_addNFC()
-		nRF5x_addAppFDS()
-		nRF5x_addBLEPeerManager()
-		# nRF5x_addBLEAdvertising()
-		# nRF5x_addAppFIFO()
-		
-or,
+- use constant passkey (security risc)
+- use constant passkey + additional custom authentication scheme
+- random passkey send over diy encrypted channel
 
-		include_directories(
-			"${NRF5_SDK_PATH}/<library header directory path>"
-		)
+* the additional authentication must be completed before passkey auth can be accepted. This should solve the MITM attack vector on passkey
 
-		list(APPEND SDK_SOURCE_FILES
-			"${NRF5_SDK_PATH}/<library source file path>"
-		)
+* suggestion is to refuse further connections after x failures.
+    -can set a variable and require reboot to try again or,
+    -set a bit in flash that survives reboot to prevent power cycle attack
 
-BLE SERVICES:
 
-		- ble_ancs_c
-		- ble_ans_c
-		- ble_bas
-		- ble_bas_c
-		- ble_bps
-		- ble_cscs
-		...
+    https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.s132.api.v6.0.0%2Fstructble__gap__sec__kdist__t.html
 
-## How to use as your own project
-Just modify the *main.c* file with your own code. In case you need specify more SDK libraries you have to modify the *nrF5x.cmake* file on the *cmake* folder.
+    https://devzone.nordicsemi.com/f/nordic-q-a/35856/questions-about-lesc-mitm-and-passkey/138216#138216.
+    combine with:
+    https://en.wikipedia.org/wiki/Encrypted_key_exchange
 
+    https://devzone.nordicsemi.com/f/nordic-q-a/51181/nrf_crypto_ecc_key_pair_generate-return-error/207121
+
+
+#Steps to pair from bluetoothctl:
+
+[bluetooth]# agent KeyboardDisplay
+[bluetooth]# default-agent
+[bluetooth]# scan on
+[bluetooth]# scan off
+[bluetooth]# pair 
