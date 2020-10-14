@@ -140,7 +140,7 @@ void gap_params_init()
     ble_gap_addr_t address = {
         0, //ignored
         BLE_GAP_ADDR_TYPE_PUBLIC, 
-        {10,10,10,10,10,10}}; 
+        {90,10,10,10,10,10}}; 
     err_code = sd_ble_gap_addr_set(&address);
     APP_ERROR_CHECK(err_code);
 
@@ -322,12 +322,20 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     uint32_t err_code;
     uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
     pm_handler_secure_on_error(p_ble_evt);
+    ble_gap_phys_t const phys = {
+        .rx_phys = BLE_GAP_PHY_1MBPS, //rx_phys
+        .tx_phys = BLE_GAP_PHY_1MBPS, //tx_phys
+    };
 
     switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONNECTED:
         NRF_LOG_INFO("Connected.");
-        m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-        err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
+
+        err_code = sd_ble_gap_phy_update(conn_handle, &phys);
+        APP_ERROR_CHECK(err_code);
+        err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_CONN, conn_handle, 4);
+        APP_ERROR_CHECK(err_code);
+        err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, conn_handle);
         APP_ERROR_CHECK(err_code);
         break;
     case BLE_GAP_EVT_DISCONNECTED:
@@ -336,25 +344,19 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         break;
     case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
         NRF_LOG_DEBUG("PHY update request.");
-        ble_gap_phys_t const phys = {
-            .rx_phys = BLE_GAP_PHY_AUTO, //rx_phys
-            .tx_phys = BLE_GAP_PHY_AUTO, //tx_phys
-        };
-        err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+        err_code = sd_ble_gap_phy_update(conn_handle, &phys);
         APP_ERROR_CHECK(err_code);
         break;
     case BLE_GATTC_EVT_TIMEOUT:
         // Disconnect on GATT Client timeout event.
         NRF_LOG_DEBUG("GATT Client Timeout.");
-        err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
-                                            BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        err_code = sd_ble_gap_disconnect(conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
         APP_ERROR_CHECK(err_code);
         break;
     case BLE_GATTS_EVT_TIMEOUT: //NOTE: GATTS (S != C)
         // Disconnect on GATT Server timeout event.
         NRF_LOG_DEBUG("GATT Server Timeout.");
-        err_code = sd_ble_gap_disconnect(conn_handle,
-                                            BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        err_code = sd_ble_gap_disconnect(conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
         APP_ERROR_CHECK(err_code);
         break;
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST: 
@@ -362,11 +364,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         break;
     case BLE_GAP_EVT_AUTH_KEY_REQUEST:
         NRF_LOG_INFO("BLE_GAP_EVT_AUTH_KEY_REQUEST received");
-        /*err_code = sd_ble_gap_auth_key_reply(
-            conn_handle, 
-            BLE_GAP_AUTH_KEY_TYPE_PASSKEY, 
-            passkey);
-        APP_ERROR_CHECK(err_code);*/ //TODO not doing this anymore right?
         break;
     case BLE_GAP_EVT_AUTH_STATUS:
         NRF_LOG_INFO("BLE_GAP_EVT_AUTH_STATUS: status=0x%x bond=0x%x lv4: %d kdist_own:0x%x kdist_peer:0x%x",
