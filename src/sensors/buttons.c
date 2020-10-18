@@ -57,9 +57,9 @@ static app_button_cfg_t config[] = {
  * and configures GPIOTE to give an interrupt on pin change.
  */
 void gpio_init() {
-    uint32_t err_code = app_button_enable();
+    uint32_t err_code = app_button_init(config, 1, 100);
     APP_ERROR_CHECK(err_code);
-    err_code = app_button_init(config, 1, 100);
+    err_code = app_button_enable();
     APP_ERROR_CHECK(err_code);
     NRF_LOG_INFO("gpio init done");
 
