@@ -75,17 +75,16 @@ void add_test_characteristics(uint8_t base_index, uint16_t service_handle) {
     sd_ble_gatts_attr_get(test_state.handle.value_handle, &p_uuid, &p_md);
 }
 
-static const struct Field fields[] = {
-    { // Sine
-        decode_add: -5000,
-        decode_scale: 1,
-        length: 14,
-        offset: 0},
-    { // Triangle
-        decode_add: -10,
-        decode_scale: 0.05,
-        length: 10,
-        offset: 14},
+const union Field fields[] = {
+	{.F32 = { // test button one
+		.decode_add = 0,
+		.decode_scale = 10,
+		.length = 10,
+		.offset = 0},
+	},
+	{.Bool = { // test movement sensor
+		.offset = 10},
+	},
 };
 
 extern uint16_t connection_handle;
@@ -101,8 +100,8 @@ bool send_notify(const float sine, const float triangle) {
     params.p_data = data;
     params.p_len  = &len;
 
-    encode(&fields[0], sine, data);
-    encode(&fields[1], triangle, data); 
+    encode_f32(&fields[0], 0.05, data);
+    encode_bool(&fields[1], true, data); 
     NRF_LOG_HEXDUMP_DEBUG(data,3);
 
     if(test_state.notify_enabled){

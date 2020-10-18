@@ -4,6 +4,7 @@
 [submodule "dependencies/bitspec"]
 	path = dependencies/bitspec
 	url = https://github.com/dskleingeld/bitspec
+	branch = bool-fields
 [submodule "unlock_and_flash/create_bmp/blackmagic"]
 	path = unlock_and_flash/create_bmp/blackmagic
 	url = https://github.com/blacksphere/blackmagic

@@ -6,6 +6,7 @@
 #include "ble.h"
 #include "service_if.h"
 #include "timers.h"
+#include "sensors/buttons.h"
 
 int main() {
 
@@ -30,6 +31,7 @@ int main() {
     // Start execution.
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
+    gpio_init();
     advertising_start();
     NRF_LOG_INFO("version 2.0");
 
