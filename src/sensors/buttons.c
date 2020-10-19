@@ -1,6 +1,7 @@
 #include "buttons.h"
 
 #include "app_button.h"
+#include "nrf_gpio.h"
 #include "stdbool.h"
 #include "nrf_log.h"
 #include "nrf.h"
@@ -9,46 +10,31 @@
 #include "boards.h"
 #include "timers.h"
 
+uint32_t pushed_at;
 
-/* const uint32_t pin = 30; */
-
-void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
-    /* switch(action) { */
-    /*     case NRF_GPIOTE_POLARITY_LOTOHI: */
-    /*         NRF_LOG_INFO("interrupt handler low high"); */
-    /*         break; */
-    /*     case NRF_GPIOTE_POLARITY_HITOLO: */
-    /*         NRF_LOG_INFO("interrupt handler high low"); */
-    /*         break; */
-    /*     case NRF_GPIOTE_POLARITY_TOGGLE: */
-    /*         if(high) { */
-    /*             high = false; */
-    /*         } else { */
-    /*             high = true; */
-    /*         } */
-    /*         /1* NRF_LOG_INFO("interrupt handler toggle"); *1/ */
-    /*         break; */
-    /* } */
-}
-
+// TODO make this time the period a button is pressed
+// (debouncing is already done)
 void test_handler2(uint8_t pin_no, uint8_t button_action){
-    NRF_LOG_INFO("hi");
+    uint32_t elapsed = 0;
     switch(button_action){
         case APP_BUTTON_PUSH:
+            pushed_at = RTC_now();
             NRF_LOG_INFO("pushed");
             break;
         case APP_BUTTON_RELEASE:
+            elapsed = RTC_elapsed(pushed_at);
             NRF_LOG_INFO("released");
+            NRF_LOG_INFO("%d", elapsed);
             break;
     }
 }
 
-
+// has to be static for app_button to work
 static app_button_cfg_t config[] = {
     {
     .pin_no = 30, 
-    .active_state = APP_BUTTON_ACTIVE_LOW,  
-    .pull_cfg = NRF_GPIO_PIN_PULLUP,      
+    .active_state = APP_BUTTON_ACTIVE_HIGH,  
+    .pull_cfg = NRF_GPIO_PIN_NOPULL, //NRF_GPIO_PIN_PULLDOWN, //NRF_GPIO_PIN_PULLUP,      
     .button_handler = test_handler2,
     }};
 
@@ -62,21 +48,4 @@ void gpio_init() {
     err_code = app_button_enable();
     APP_ERROR_CHECK(err_code);
     NRF_LOG_INFO("gpio init done");
-
-    /* uint32_t err_code; */
-
-    /* err_code = nrf_drv_gpiote_init(); */
-    /* APP_ERROR_CHECK(err_code); */
-
-    /* nrf_drv_gpiote_in_config_t in_config1 = GPIOTE_CONFIG_IN_SENSE_TOGGLE(true); */
-    /* nrf_drv_gpiote_in_config_t in_config2 = GPIOTE_CONFIG_IN_SENSE_HITOLO(true); */
-    /* in_config1.pull = NRF_GPIO_PIN_PULLUP; */
-    /* in_config2.pull = NRF_GPIO_PIN_PULLUP; */
-
-    /* err_code = nrf_drv_gpiote_in_init(pin, &in_config1, in_pin_handler); */
-    /* APP_ERROR_CHECK(err_code); */
-    /* err_code = nrf_drv_gpiote_in_init(pin, &in_config2, in_pin_handler); */
-    /* APP_ERROR_CHECK(err_code); */
-
-    /* nrf_drv_gpiote_in_event_enable(pin, true); */
 }
