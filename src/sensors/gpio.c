@@ -10,23 +10,9 @@
 #include "boards.h"
 #include "timers.h"
 
-uint32_t pushed_at;
-
-// TODO make this time the period a button is pressed
-// (debouncing is already done)
-void test_handler2(uint8_t pin_no, uint8_t button_action){
-    uint32_t elapsed = 0;
-    switch(button_action){
-        case APP_BUTTON_PUSH:
-            pushed_at = RTC_now();
-            NRF_LOG_INFO("pushed");
-            break;
-        case APP_BUTTON_RELEASE:
-            elapsed = RTC_elapsed(pushed_at);
-            NRF_LOG_INFO("released");
-            NRF_LOG_INFO("%d", elapsed);
-            break;
-    }
+void handle_gpio(uint8_t pin_no, uint8_t button_action){
+    handle_button();
+    handle_movement();
 }
 
 // has to be static for app_button to work
@@ -35,7 +21,7 @@ static app_button_cfg_t config[] = {
     .pin_no = 30, 
     .active_state = APP_BUTTON_ACTIVE_HIGH,  
     .pull_cfg = NRF_GPIO_PIN_NOPULL, //NRF_GPIO_PIN_PULLDOWN, //NRF_GPIO_PIN_PULLUP,      
-    .button_handler = test_handler2,
+    .button_handler = handle_gpio,
     }};
 
 /**

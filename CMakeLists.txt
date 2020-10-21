@@ -129,9 +129,8 @@ include_directories(
 )
 
 list(APPEND SOURCE_FILES "src/service/service_if.c")
-list(APPEND SOURCE_FILES "src/service/read.c")
-list(APPEND SOURCE_FILES "src/service/test.c")
-list(APPEND SOURCE_FILES "src/service/write.c")
+list(APPEND SOURCE_FILES "src/service/characteristics/dynamic.c")
+list(APPEND SOURCE_FILES "src/service/characteristics/schedualed.c")
 list(APPEND SOURCE_FILES "src/sensors/timers.c")
 list(APPEND SOURCE_FILES "src/sensors/buttons.c")
 list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
