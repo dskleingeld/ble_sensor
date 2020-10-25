@@ -17,7 +17,7 @@ APP_TIMER_DEF(timer_id1);
 struct DynamicState dynamic_state = {
     .uuid = 2,
     .notify_enabled = false,
-    .timer = {id: &timer_id1, timeout: 500, handler: handle_timed},
+    .timer = {.id = &timer_id1, .timeout = 500, .handler = handle_timed},
 };
 
 void enable_dynamic_notify(struct DynamicState* self){
@@ -78,7 +78,7 @@ void add_dynamic_characteristics(uint8_t base_index, uint16_t service_handle) {
     sd_ble_gatts_attr_get(dynamic_state.handle.value_handle, &p_uuid, &p_md);
 }
 
-const union Field timed_fields[] = {
+static union Field fields[] = {
 	{.F32 = { // Sine
 		.decode_add = -5000,
 		.decode_scale = 1,
@@ -91,9 +91,6 @@ const union Field timed_fields[] = {
 		.length = 10,
 		.offset = 14},
 	},    
-};
-
-const union Field gpio_fields[] = {
 	{.F32 = { // test button one
 		.decode_add = 0,
 		.decode_scale = 10,
@@ -105,7 +102,7 @@ const union Field gpio_fields[] = {
 	},
 };
 
-struct DynamicF32Val values[] = {
+static struct DynamicF32Val values[] = {
     {
         .current = FLT_MIN,
         .maxdiff = 0.5,
@@ -147,10 +144,13 @@ static bool send_notify(uint8_t data[3]){
     return true;
 }
 
-static void encode_timed(union Field field, float value, uint8_t data[]){
-    memset(data, 0, 3);
-    field.F32.offset = 0;
-    encode_f32(&field, value, data);
+static void encode_timed(uint8_t field_id, float value, uint8_t data[]){
+    memset(data, 1, 3);
+    data[0] = field_id;
+
+    union Field* field = &fields[field_id];
+    field->F32.offset = 8; //first byte is field
+    encode_f32(field, value, data);
 }
 
 static void handle_timed(void* p_context){
@@ -163,43 +163,49 @@ static void handle_timed(void* p_context){
     for(int i=0; i<2; i++){
         float diff = fabs(values[i].last_send - values[0].current);
         if (diff > values[i].maxdiff) {
-            encode_timed(timed_fields[i], values[i].current, data);
+            encode_timed(i, values[i].current, data);
             send_notify(data);
             values[i].last_send = values[i].current;
         }
     }
 }
 
-static void encode_button(union Field field, float value, uint8_t data[]){
-    memset(data, 0, 3);
-    field.F32.offset = 0;
-    encode_f32(&field, value, data);
+static void encode_button(uint8_t field_id, float value, uint8_t data[]){
+    memset(data, 1, 3);
+    data[0] = field_id;
+
+    union Field* field = &fields[field_id];
+    field->F32.offset = 8; //first byte is field
+    encode_f32(field, value, data);
 }
 
 void handle_dyn_button(uint32_t press_duration, uint8_t pin){
     uint8_t data[3] = {0};
-    union Field field;
+    uint8_t field_id;
     switch(pin){
         case 30:
-            field = gpio_fields[0];
+            field_id = 2;
     }
-    encode_button(field, press_duration, data);
+    encode_button(field_id, press_duration, data);
     send_notify(data);
 }
 
-static void encode_movement(union Field field, bool pressed, uint8_t data[]){
-    memset(data, 0, 3);
-    field.Bool.offset = 0;
-    encode_bool(&field, pressed, data);
+static void encode_movement(uint8_t field_id, bool pressed, uint8_t data[]){
+    memset(data, 1, 3);
+    data[0] = field_id;
+
+    union Field* field = &fields[field_id];
+    field->F32.offset = 8; //first byte is field
+    encode_bool(field, pressed, data);
 }
 
 void handle_dyn_movement(bool pressed, uint8_t pin){
     uint8_t data[3] = {0};
-    union Field field;
+    uint8_t field_id;
     switch(pin){
         case 30:
-            field = gpio_fields[1];
+            field_id = 3;
     }
-    encode_movement(field, pressed, data);
+    encode_movement(field_id, pressed, data);
     send_notify(data);
 }
