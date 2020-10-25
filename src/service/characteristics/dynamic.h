@@ -14,11 +14,11 @@ struct DynamicState {
     struct Timer timer;
 };
 
-struct DynamicValue {
+struct DynamicF32Val {
     float current;
     float last_send;
     const float maxdiff;
-}
+};
 
 extern struct DynamicState dynamic_state;
 void enable_dynamic_notify(struct DynamicState* self);

@@ -131,12 +131,13 @@ include_directories(
 list(APPEND SOURCE_FILES "src/service/service_if.c")
 list(APPEND SOURCE_FILES "src/service/characteristics/dynamic.c")
 list(APPEND SOURCE_FILES "src/service/characteristics/schedualed.c")
-list(APPEND SOURCE_FILES "src/sensors/timers.c")
-list(APPEND SOURCE_FILES "src/sensors/buttons.c")
-list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
-list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
-list(APPEND SOURCE_FILES "src/pairing.c")
 
+list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
+list(APPEND SOURCE_FILES "src/sensors/timers.c")
+list(APPEND SOURCE_FILES "src/sensors/gpio.c")
+list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
+
+list(APPEND SOURCE_FILES "src/pairing.c")
 list(APPEND SOURCE_FILES "src/ble.c")
 list(APPEND SOURCE_FILES "src/main.c")
 

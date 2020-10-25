@@ -9,9 +9,8 @@ struct SchedualedState {
     bool notify_enabled;
     uint16_t uuid;
     ble_gatts_char_handles_t handle;
-
-    uint8_t data[3];
     struct Timer timer;
+    uint8_t data[3];
 };
 extern struct SchedualedState schedualed_state;
 void enable_schedualed_notify(struct SchedualedState* self);

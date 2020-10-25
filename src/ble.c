@@ -83,8 +83,6 @@
 #include "ble_config.h"
 #include "service_if.h"
 #include "pairing.h"
-#include "read.h"
-#include "write.h"
 
 NRF_BLE_QWR_DEF(m_qwr);                                                             /**< Queued Writes structure.*/
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */

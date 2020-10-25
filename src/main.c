@@ -4,9 +4,9 @@
 #include "nrf_crypto.h"
 
 #include "ble.h"
+#include "sensors/gpio.h"
+#include "sensors/timers.h"
 #include "service_if.h"
-#include "timers.h"
-#include "sensors/buttons.h"
 
 int main() {
 

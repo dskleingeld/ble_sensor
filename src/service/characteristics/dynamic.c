@@ -8,14 +8,16 @@
 #include "ble_srv_common.h"
 #include "ble_gatts.h"
 #include "float.h"
+#include "math.h"
+#include "string.h"
 
-static void handle_timer(void* p_context);
+static void handle_timed(void* p_context);
 
 APP_TIMER_DEF(timer_id1);
 struct DynamicState dynamic_state = {
     .uuid = 2,
     .notify_enabled = false,
-    .timer = {id: &timer_id1, timeout: 500, handler: handle_timer},
+    .timer = {id: &timer_id1, timeout: 500, handler: handle_timed},
 };
 
 void enable_dynamic_notify(struct DynamicState* self){
@@ -26,7 +28,7 @@ void enable_dynamic_notify(struct DynamicState* self){
 
 void disable_dynamic_notify(struct DynamicState* self){
     NRF_LOG_INFO("notify disabled");
-    self->notify_enabled = true;
+    self->notify_enabled = false;
     timer_stop(self->timer);
 }
 
@@ -76,46 +78,55 @@ void add_dynamic_characteristics(uint8_t base_index, uint16_t service_handle) {
     sd_ble_gatts_attr_get(dynamic_state.handle.value_handle, &p_uuid, &p_md);
 }
 
-const union Field fields[] = {
+const union Field timed_fields[] = {
+	{.F32 = { // Sine
+		.decode_add = -5000,
+		.decode_scale = 1,
+		.length = 14,
+		.offset = 0},
+	},
+	{.F32 = { // Triangle
+		.decode_add = -10,
+		.decode_scale = 0.05,
+		.length = 10,
+		.offset = 14},
+	},    
+};
+
+const union Field gpio_fields[] = {
 	{.F32 = { // test button one
 		.decode_add = 0,
 		.decode_scale = 10,
 		.length = 10,
-		.offset = 0},
+		.offset = 24},
 	},
 	{.Bool = { // test movement sensor
-		.offset = 10},
+		.offset = 34},
 	},
 };
 
-static struct DynamicValue values[] = {
-    { // sine
+struct DynamicF32Val values[] = {
+    {
         .current = FLT_MIN,
         .maxdiff = 0.5,
-        .last_send = FLT_MAX,
-    },
-    { // triangle
+        .last_send = FLT_MAX}, 
+    {
         .current = FLT_MIN,
         .maxdiff = 0.5,
-        .last_send = FLT_MAX,
-    },
-}
+        .last_send = FLT_MAX}, 
+};
 
 extern uint16_t connection_handle;
-bool send_notify(float value, union Field field){
+static bool send_notify(uint8_t data[3]){
 
-    uint8_t data[3] = {0};
-    uint16_t len = sizeof(data);
+    uint16_t len = 3;
     ble_gatts_hvx_params_t params = {0};
     params.type   = BLE_GATT_HVX_NOTIFICATION;
     params.handle = dynamic_state.handle.value_handle;
     params.p_data = data;
     params.p_len  = &len;
 
-    field.F32.offset = 0;
-    encode_f32(&field, value, data);
-    NRF_LOG_HEXDUMP_DEBUG(data,3);
-
+    /* NRF_LOG_HEXDUMP_DEBUG(data,3); */
     if(dynamic_state.notify_enabled){
         uint32_t err_code = sd_ble_gatts_hvx(connection_handle, &params);
         switch(err_code) {
@@ -136,15 +147,59 @@ bool send_notify(float value, union Field field){
     return true;
 }
 
-static void handle_timer(void* p_context){
+static void encode_timed(union Field field, float value, uint8_t data[]){
+    memset(data, 0, 3);
+    field.F32.offset = 0;
+    encode_f32(&field, value, data);
+}
+
+static void handle_timed(void* p_context){
+    // measure sensors
     values[0].current = measure_triangle();
     values[1].current = measure_sine();
     
-    // only send it significant change
-    for(int i=0; i<sizeof(values)/sizeof(DynamicValue); i++){
+    uint8_t data[3] = {0};
+    // send values if significant change detected
+    for(int i=0; i<2; i++){
         float diff = fabs(values[i].last_send - values[0].current);
         if (diff > values[i].maxdiff) {
-            send_notify(values[i], fields[i]);
+            encode_timed(timed_fields[i], values[i].current, data);
+            send_notify(data);
+            values[i].last_send = values[i].current;
         }
     }
+}
+
+static void encode_button(union Field field, float value, uint8_t data[]){
+    memset(data, 0, 3);
+    field.F32.offset = 0;
+    encode_f32(&field, value, data);
+}
+
+void handle_dyn_button(uint32_t press_duration, uint8_t pin){
+    uint8_t data[3] = {0};
+    union Field field;
+    switch(pin){
+        case 30:
+            field = gpio_fields[0];
+    }
+    encode_button(field, press_duration, data);
+    send_notify(data);
+}
+
+static void encode_movement(union Field field, bool pressed, uint8_t data[]){
+    memset(data, 0, 3);
+    field.Bool.offset = 0;
+    encode_bool(&field, pressed, data);
+}
+
+void handle_dyn_movement(bool pressed, uint8_t pin){
+    uint8_t data[3] = {0};
+    union Field field;
+    switch(pin){
+        case 30:
+            field = gpio_fields[1];
+    }
+    encode_movement(field, pressed, data);
+    send_notify(data);
 }

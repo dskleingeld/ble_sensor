@@ -1,8 +1,9 @@
-#include "test.h"
+#include "schedualed.h"
 #include "encoding.h"
 #include "../sensors/test_sensors.h"
 
 #include "nrf_log.h"
+#include "app_timer.h"
 #include "app_error.h"
 #include "ble_srv_common.h"
 #include "ble_gatts.h"
@@ -13,7 +14,7 @@ APP_TIMER_DEF(timer_id2);
 struct SchedualedState schedualed_state = {
     .uuid = 1,
     .notify_enabled = false,
-    .timer = {id: &timer_id2, timeout: 5000, handler: handle},
+    .timer = {.id = &timer_id2, .timeout = 5000, .handler = handle},
 };
 
 void enable_schedualed_notify(struct SchedualedState* self){
@@ -24,11 +25,11 @@ void enable_schedualed_notify(struct SchedualedState* self){
 
 void disable_schedualed_notify(struct SchedualedState* self){
     NRF_LOG_INFO("notify disabled");
-    self->notify_enabled = true;
+    self->notify_enabled = false;
     timer_stop(self->timer);
 }
 
-void add_dynamic_characteristics(uint8_t base_index, uint16_t service_handle) {
+void add_schedualed_characteristics(uint8_t base_index, uint16_t service_handle) {
     //client characteristic config declaration
     ble_gatts_attr_md_t cccd_meta = {};
     cccd_meta.vloc = BLE_GATTS_VLOC_STACK; //value location

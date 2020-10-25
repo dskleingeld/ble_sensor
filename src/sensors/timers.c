@@ -1,8 +1,10 @@
 #include "timers.h"
+#include "characteristics/dynamic.h"
 #include "nrf_log.h"
 
-#include "../service/test.h"
 #include "stdint.h"
+#include "../service/characteristics/dynamic.h"
+#include "../service/characteristics/schedualed.h"
 
 void test_handler(void * p_context){
     NRF_LOG_INFO("TIMER FIRED");
@@ -20,7 +22,8 @@ void timers_init(){
     ret_code_t err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 
-    init(&test_state.timer);
+    init(&dynamic_state.timer);
+    init(&schedualed_state.timer);
 }
 
 void timer_start(struct Timer timer){
