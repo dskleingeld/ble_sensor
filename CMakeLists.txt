@@ -96,6 +96,7 @@ nRF5x_addAes()
 
 add_definitions(-DCONFIG_GPIO_AS_PINRESET)
 
+
 ##############################################################################
 # INCLUDE CONFIG FILE: sdk_config.h
 ##############################################################################
@@ -128,14 +129,15 @@ include_directories(
 )
 
 list(APPEND SOURCE_FILES "src/service/service_if.c")
-list(APPEND SOURCE_FILES "src/service/read.c")
-list(APPEND SOURCE_FILES "src/service/test.c")
-list(APPEND SOURCE_FILES "src/service/write.c")
-list(APPEND SOURCE_FILES "src/sensors/timers.c")
-list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
-list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
-list(APPEND SOURCE_FILES "src/pairing.c")
+list(APPEND SOURCE_FILES "src/service/characteristics/dynamic.c")
+list(APPEND SOURCE_FILES "src/service/characteristics/schedualed.c")
 
+list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
+list(APPEND SOURCE_FILES "src/sensors/timers.c")
+list(APPEND SOURCE_FILES "src/sensors/gpio.c")
+list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
+
+list(APPEND SOURCE_FILES "src/pairing.c")
 list(APPEND SOURCE_FILES "src/ble.c")
 list(APPEND SOURCE_FILES "src/main.c")
 

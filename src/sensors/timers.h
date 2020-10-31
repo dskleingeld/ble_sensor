@@ -13,3 +13,6 @@ void test_handler(void * p_context);
 void timers_init();
 void timer_start(struct Timer timer);
 void timer_stop(struct Timer timer);
+
+uint32_t RTC_elapsed(uint32_t prev_ticks);
+uint32_t RTC_now();
