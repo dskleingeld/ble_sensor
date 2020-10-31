@@ -133,14 +133,14 @@ void gap_params_init()
         strlen(DEVICE_NAME));
     APP_ERROR_CHECK(err_code);
 
-    //set a MAC addr to prevent server side bluez from
-    //not rereading the characteristics.
-    ble_gap_addr_t address = {
-        0, //ignored
-        BLE_GAP_ADDR_TYPE_PUBLIC, 
-        {50,10,10,10,10,10}}; 
-    err_code = sd_ble_gap_addr_set(&address);
-    APP_ERROR_CHECK(err_code);
+    /* //set a MAC addr to prevent server side bluez from */
+    /* //not rereading the characteristics. */
+    /* ble_gap_addr_t address = { */
+    /*     0, //ignored */
+    /*     BLE_GAP_ADDR_TYPE_PUBLIC, */ 
+    /*     {50,10,10,10,10,10}}; */ 
+    /* err_code = sd_ble_gap_addr_set(&address); */
+    /* APP_ERROR_CHECK(err_code); */
 
     ble_gap_conn_params_t gap_conn_params = {};
     gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
