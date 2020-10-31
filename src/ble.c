@@ -300,7 +300,10 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
             break;
 
         case BLE_ADV_EVT_IDLE:
-            sleep_mode_enter();
+            // lets not do this but rather stay advertising forever
+            // by restarting the advertising process
+            err_code = ble_advertising_start(&m_advertising, BLE_ADV_EVT_FAST);
+            APP_ERROR_CHECK(err_code);
             break;
 
         default:
