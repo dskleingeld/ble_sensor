@@ -11,7 +11,6 @@ struct DynamicState {
     ble_gatts_char_handles_t handle;
 
     uint8_t data[3];
-    struct Timer timer;
 };
 
 struct DynamicF32Val {

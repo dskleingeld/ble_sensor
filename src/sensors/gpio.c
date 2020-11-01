@@ -44,10 +44,10 @@ void handle_movement_sens(uint8_t pin, uint8_t button_action){
 
 void handle_gpio(uint8_t pin_no, uint8_t button_action){
     switch(pin_no){
-        case 30:
-            handle_button(pin_no, button_action);
+        case 2:
+            handle_movement_sens(pin_no, button_action);
             break;
-        case 29:
+        case 31:
             handle_movement_sens(pin_no, button_action);
             break;
     }
@@ -56,9 +56,15 @@ void handle_gpio(uint8_t pin_no, uint8_t button_action){
 // has to be static for app_button to work
 static app_button_cfg_t config[] = {
     {
-    .pin_no = 30, 
+    .pin_no = 2, 
     .active_state = APP_BUTTON_ACTIVE_HIGH,  
-    .pull_cfg = NRF_GPIO_PIN_NOPULL, //NRF_GPIO_PIN_PULLDOWN, //NRF_GPIO_PIN_PULLUP,      
+    .pull_cfg = NRF_GPIO_PIN_NOPULL, // no pullup/down for MOVEMENT_SENS      
+    .button_handler = handle_gpio,
+    },
+    {
+    .pin_no = 31, 
+    .active_state = APP_BUTTON_ACTIVE_HIGH,  
+    .pull_cfg = NRF_GPIO_PIN_NOPULL, // no pullup/down for MOVEMENT_SENS
     .button_handler = handle_gpio,
     },
 };

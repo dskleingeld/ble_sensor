@@ -10,26 +10,21 @@
 #include "float.h"
 #include "math.h"
 #include "string.h"
+#include "limits.h"
 
-static void handle_timed(void* p_context);
-
-APP_TIMER_DEF(timer_id1);
 struct DynamicState dynamic_state = {
     .uuid = 2,
     .notify_enabled = false,
-    .timer = {.id = &timer_id1, .timeout = 500, .handler = handle_timed},
 };
 
 void enable_dynamic_notify(struct DynamicState* self){
     NRF_LOG_INFO("notify enabled");
     self->notify_enabled = true;
-    timer_start(self->timer);
 }
 
 void disable_dynamic_notify(struct DynamicState* self){
     NRF_LOG_INFO("notify disabled");
     self->notify_enabled = false;
-    timer_stop(self->timer);
 }
 
 void add_dynamic_characteristics(uint8_t base_index, uint16_t service_handle) {
@@ -79,38 +74,12 @@ void add_dynamic_characteristics(uint8_t base_index, uint16_t service_handle) {
 }
 
 static union Field fields[] = {
-	{.F32 = { // Sine
-		.decode_add = -5000,
-		.decode_scale = 1,
-		.length = 14,
-		.offset = 0},
+	{.Bool = { // movement sensor shower
+		.offset = 1},
 	},
-	{.F32 = { // Triangle
-		.decode_add = -10,
-		.decode_scale = 0.05,
-		.length = 10,
-		.offset = 14},
-	},    
-	{.F32 = { // test button one
-		.decode_add = 0,
-		.decode_scale = 10,
-		.length = 10,
-		.offset = 24},
+	{.Bool = { // movement sensor toilet
+		.offset = 2},
 	},
-	{.Bool = { // test movement sensor
-		.offset = 34},
-	},
-};
-
-static struct DynamicF32Val values[] = {
-    {
-        .current = FLT_MIN,
-        .maxdiff = 0.5,
-        .last_send = FLT_MAX}, 
-    {
-        .current = FLT_MIN,
-        .maxdiff = 0.5,
-        .last_send = FLT_MAX}, 
 };
 
 extern uint16_t connection_handle;
@@ -144,54 +113,8 @@ static bool send_notify(uint8_t data[3]){
     return true;
 }
 
-static void encode_timed(uint8_t field_id, float value, uint8_t data[]){
-    memset(data, 1, 3);
-    data[0] = field_id;
-
-    union Field* field = &fields[field_id];
-    field->F32.offset = 8; //first byte is field
-    encode_f32(field, value, data);
-}
-
-static void handle_timed(void* p_context){
-    // measure sensors
-    values[0].current = measure_triangle();
-    values[1].current = measure_sine();
-    
-    uint8_t data[3] = {0};
-    // send values if significant change detected
-    for(int i=0; i<2; i++){
-        float diff = fabs(values[i].last_send - values[0].current);
-        if (diff > values[i].maxdiff) {
-            encode_timed(i, values[i].current, data);
-            send_notify(data);
-            values[i].last_send = values[i].current;
-        }
-    }
-}
-
-static void encode_button(uint8_t field_id, float value, uint8_t data[]){
-    memset(data, 1, 3);
-    data[0] = field_id;
-
-    union Field* field = &fields[field_id];
-    field->F32.offset = 8; //first byte is field
-    encode_f32(field, value, data);
-}
-
-void handle_dyn_button(uint32_t press_duration, uint8_t pin){
-    uint8_t data[3] = {0};
-    uint8_t field_id;
-    switch(pin){
-        case 30:
-            field_id = 2;
-    }
-    encode_button(field_id, press_duration, data);
-    send_notify(data);
-}
-
 static void encode_movement(uint8_t field_id, bool pressed, uint8_t data[]){
-    memset(data, 1, 3);
+    memset(data, 0, 3);
     data[0] = field_id;
 
     union Field* field = &fields[field_id];
@@ -203,8 +126,10 @@ void handle_dyn_movement(bool pressed, uint8_t pin){
     uint8_t data[3] = {0};
     uint8_t field_id;
     switch(pin){
-        case 30:
-            field_id = 3;
+        case 2:
+            field_id = 0;
+        case 31:
+            field_id = 1;
     }
     encode_movement(field_id, pressed, data);
     send_notify(data);

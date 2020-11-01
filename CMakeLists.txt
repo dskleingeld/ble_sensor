@@ -135,11 +135,14 @@ list(APPEND SOURCE_FILES "src/service/characteristics/schedualed.c")
 list(APPEND SOURCE_FILES "src/sensors/test_sensors.c")
 list(APPEND SOURCE_FILES "src/sensors/timers.c")
 list(APPEND SOURCE_FILES "src/sensors/gpio.c")
+list(APPEND SOURCE_FILES "src/sensors/sht31.c")
 list(APPEND SOURCE_FILES "dependencies/bitspec/c_src/encoding.c")
 
 list(APPEND SOURCE_FILES "src/pairing.c")
 list(APPEND SOURCE_FILES "src/ble.c")
 list(APPEND SOURCE_FILES "src/main.c")
+
+list(APPEND SOURCE_FILES "SDK_17/modules/nrfx/drivers/src/nrfx_twim.c")
 
 #used std libs
 list(APPEND STD_LIBS "m")

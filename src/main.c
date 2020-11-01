@@ -6,6 +6,7 @@
 #include "ble.h"
 #include "sensors/gpio.h"
 #include "sensors/timers.h"
+#include "sensors/sht31.h"
 #include "service_if.h"
 
 int main() {
@@ -19,6 +20,10 @@ int main() {
     ret_val = nrf_crypto_rng_init(NULL, NULL);
     APP_ERROR_CHECK(ret_val);
 
+    // reset or init all sensors
+    twi_init();
+    sht31_reset();
+
     ble_stack_init();
     gap_params_init();
     gatt_init();
@@ -31,8 +36,8 @@ int main() {
     // Start execution.
     NRF_LOG_INFO("Bluetooth Dev Studio example started.");
     application_timers_start();
-    gpio_init();
     advertising_start();
+    gpio_init();
     NRF_LOG_INFO("version 2.0");
 
     // Enter main loop.

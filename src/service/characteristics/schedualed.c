@@ -1,20 +1,22 @@
 #include "schedualed.h"
 #include "encoding.h"
-#include "../sensors/test_sensors.h"
+#include "../sensors/sht31.h"
 
 #include "nrf_log.h"
 #include "app_timer.h"
 #include "app_error.h"
 #include "ble_srv_common.h"
 #include "ble_gatts.h"
+#include "timers.h"
 
-static void handle(void* p_context);
+static void request_values(void* p_context);
 
 APP_TIMER_DEF(timer_id2);
+APP_TIMER_DEF(timer_sht31);
 struct SchedualedState schedualed_state = {
     .uuid = 1,
     .notify_enabled = false,
-    .timer = {.id = &timer_id2, .timeout = 5000, .handler = handle},
+    .timer = {.id = &timer_id2, .timeout = 5000, .handler = request_values},
 };
 
 void enable_schedualed_notify(struct SchedualedState* self){
@@ -76,22 +78,22 @@ void add_schedualed_characteristics(uint8_t base_index, uint16_t service_handle)
 }
 
 const union Field fields[] = {
-	{.F32 = { // Sine
-		.decode_add = -5000,
-		.decode_scale = 1,
-		.length = 14,
+	{.F32 = { // Temperature
+		.decode_add = -20,
+		.decode_scale = 0.1,
+		.length = 10,
 		.offset = 0},
 	},
-	{.F32 = { // Triangle
-		.decode_add = -10,
-		.decode_scale = 0.05,
+	{.F32 = { // Humidity
+		.decode_add = 0,
+		.decode_scale = 0.1,
 		.length = 10,
-		.offset = 14},
-	},    
+		.offset = 10},
+	},
 };
 
 extern uint16_t connection_handle;
-bool send_notify(const float sine, const float triangle) {
+bool send_notify(const float values[2]) {
 
     uint8_t data[3] = {0};
     uint16_t len = sizeof(data);
@@ -101,8 +103,8 @@ bool send_notify(const float sine, const float triangle) {
     params.p_data = data;
     params.p_len  = &len;
 
-    encode_f32(&fields[0], sine, data);
-    encode_f32(&fields[1], triangle, data); 
+    encode_f32(&fields[0], values[0], data);
+    encode_f32(&fields[1], values[1], data); 
     NRF_LOG_HEXDUMP_DEBUG(data,3);
 
     if(schedualed_state.notify_enabled){
@@ -125,11 +127,19 @@ bool send_notify(const float sine, const float triangle) {
     return true;
 }
 
-static void handle(void* p_context){
-    const float triangle = measure_triangle();
-    const float sine = measure_sine();
-    NRF_LOG_INFO("sine: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(sine));
-    NRF_LOG_INFO("triangle: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(triangle));
+static void handle_send(void* p_context){
+    float values[2]; //temp, humid
+    sht31_read_temphum(&values[0], &values[1]);
+
+    NRF_LOG_INFO("temp: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[0]));
+    NRF_LOG_INFO("hum: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[1]));
     
-    send_notify(sine, triangle);
+    send_notify(values);
+}
+
+struct Timer sht_timer = {.id = &timer_sht31, .timeout = 20, .handler = handle_send};
+static void request_values(void* p_context){
+    NRF_LOG_INFO("request values");
+    sht31_request_temphum();
+    timer_start(sht_timer);
 }

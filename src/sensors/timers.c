@@ -1,10 +1,13 @@
 #include "timers.h"
+#include "app_timer.h"
 #include "characteristics/dynamic.h"
 #include "nrf_log.h"
 
 #include "stdint.h"
 #include "../service/characteristics/dynamic.h"
 #include "../service/characteristics/schedualed.h"
+
+extern struct Timer sht_timer;
 
 void test_handler(void * p_context){
     NRF_LOG_INFO("TIMER FIRED");
@@ -17,13 +20,20 @@ static void init(struct Timer* timer){
     APP_ERROR_CHECK(err_code);
 }
 
+static void init_ss(struct Timer* timer){
+    ret_code_t err_code = app_timer_create(timer->id,
+        APP_TIMER_MODE_SINGLE_SHOT,         
+        timer->handler);
+    APP_ERROR_CHECK(err_code);
+}
+
 void timers_init(){
     // Initialize timer module.
     ret_code_t err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 
-    init(&dynamic_state.timer);
     init(&schedualed_state.timer);
+    init_ss(&sht_timer);
 }
 
 void timer_start(struct Timer timer){
