@@ -482,16 +482,6 @@ macro(nRF5x_addAes)
     message(STATUS "Including AES") 
 endmacro(nRF5x_addAes)        
 
-macro(nRF5x_addTwiDrv)
-
-    list(APPEND SDK_SOURCE_FILES
-        "${NRF5_SDK_PATH}/components/libraries/crypto/nrf_crypto_aes.c"
-        "${NRF5_SDK_PATH}/components/libraries/crypto/backend/mbedtls/mbedtls_backend_aes.c"
-    )
-
-    message(STATUS "Including AES") 
-endmacro(nRF5x_addAes)        
-
 # adds Bluetooth Low Energy advertising support library
 macro(nRF5x_addBLEPeerManager)
     include_directories(
