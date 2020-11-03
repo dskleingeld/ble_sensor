@@ -20,7 +20,7 @@ struct SchedualedState schedualed_state = {
 };
 
 void enable_schedualed_notify(struct SchedualedState* self){
-    NRF_LOG_INFO("notify enabled");
+    NRF_LOG_INFO("sched notify enabled");
     self->notify_enabled = true;
     timer_start(self->timer);
 }
@@ -65,7 +65,6 @@ void add_schedualed_characteristics(uint8_t base_index, uint16_t service_handle)
     attr_char_value.init_len = 3;
     attr_char_value.p_value = schedualed_state.data;
 
-    NRF_LOG_INFO("uuid: %i", schedualed_state.uuid);
     uint32_t err_code = sd_ble_gatts_characteristic_add(service_handle,
         &char_meta,
         &attr_char_value,

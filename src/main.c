@@ -43,5 +43,7 @@ int main() {
     // Enter main loop.
     for (;;){
         idle_state_handle(); 
+        nrf_delay_ms(1000);
+        NRF_LOG_INFO("testy");
     }
 }
