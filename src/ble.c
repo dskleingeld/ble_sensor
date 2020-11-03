@@ -479,6 +479,6 @@ void idle_state_handle() {
     APP_ERROR_CHECK(err_code);
 
     if (NRF_LOG_PROCESS() == false) {
-        nrf_pwr_mgmt_run();
+        /* nrf_pwr_mgmt_run(); */
     }
 }

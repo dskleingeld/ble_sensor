@@ -56,7 +56,7 @@ void handle_write(ble_evt_t const* p_ble_evt){
         } else {
             disable_dynamic_notify(&dynamic_state);
         }
-    } else if (char_written_to == dynamic_state.handle.cccd_handle 
+    } else if (char_written_to == schedualed_state.handle.cccd_handle 
         && p_evt_write.len == 2) {
         
         if(ble_srv_is_notification_enabled(p_evt_write.data)){
