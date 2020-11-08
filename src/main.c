@@ -9,6 +9,9 @@
 #include "sensors/sht31.h"
 #include "service_if.h"
 
+#include "service/characteristics/schedualed.h"
+extern struct SchedualedState schedualed;
+
 int main() {
 
     // Initialize.
@@ -41,9 +44,16 @@ int main() {
     NRF_LOG_INFO("version 2.0");
 
     // Enter main loop.
+    /* float temp; */
+    /* float hum; */
+    uint32_t last_schedualed = RTC_now();
+    /* uint32_t last_dynamic = RTC_now(); */
     for (;;){
         idle_state_handle(); 
-        nrf_delay_ms(1000);
-        NRF_LOG_INFO("testy");
+        if (schedualed.notify_enabled && (RTC_elapsed(last_schedualed) > 5000)) {
+            last_schedualed = RTC_now();
+            NRF_LOG_INFO("timer");
+            //TODO handle schedualed
+        } //TODO else if handle dynamic
     }
 }

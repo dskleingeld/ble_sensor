@@ -2,6 +2,7 @@
 #include "encoding.h"
 #include "../sensors/sht31.h"
 
+#include "nrf_delay.h"
 #include "nrf_log.h"
 #include "app_timer.h"
 #include "app_error.h"
@@ -126,7 +127,22 @@ bool send_notify(const float values[2]) {
     return true;
 }
 
-static void handle_send(void* p_context){
+static void read_and_send(void* p_context){
+    NRF_LOG_INFO("thing called");
+    float values[2]; //temp, humid
+    sht31_read_temphum(&values[0], &values[1]);
+
+    NRF_LOG_INFO("temp: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[0]));
+    NRF_LOG_INFO("hum: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[1]));
+    
+    /* send_notify(values); */
+}
+
+struct Timer sht_timer = {.id = &timer_sht31, .timeout = 200, .handler = read_and_send};
+static void request_values(void* p_context){
+    NRF_LOG_INFO("request values");
+    sht31_request_temphum();
+    nrf_delay_ms(20);
     float values[2]; //temp, humid
     sht31_read_temphum(&values[0], &values[1]);
 
@@ -134,11 +150,5 @@ static void handle_send(void* p_context){
     NRF_LOG_INFO("hum: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[1]));
     
     send_notify(values);
-}
-
-struct Timer sht_timer = {.id = &timer_sht31, .timeout = 20, .handler = handle_send};
-static void request_values(void* p_context){
-    NRF_LOG_INFO("request values");
-    sht31_request_temphum();
-    timer_start(sht_timer);
+    /* timer_start(sht_timer); */
 }

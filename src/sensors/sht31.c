@@ -37,7 +37,7 @@
 const int SHT31_ADDR = 0x44;
 #define TWI_INSTANCE_ID 0
 static const nrfx_twim_t twi = NRFX_TWIM_INSTANCE(TWI_INSTANCE_ID);
-static bool twi_done;
+static bool twi_done = true;
 
 static void twi_handler(nrfx_twim_evt_t const * p_event, void * p_context);
 
@@ -101,34 +101,39 @@ static uint8_t crc8(const uint8_t *data, int len) {
 // allow for a 10 ms delay before reading again after reset
 void sht31_reset() {
     const int16_t SHT31_SOFTRESET = 0x30A2;
+    while (twi_done == false) {} //block till rdy
     sht31_write_command(SHT31_SOFTRESET);
+    twi_done = false;
 }
 
 void sht31_request_temphum() {
     NRF_LOG_INFO("request temphum");
     const int SHT31_MEAS_HIGHREP = 0x2400;
+    while (twi_done == false) {} //block till rdy
     sht31_write_command(SHT31_MEAS_HIGHREP);
+    twi_done = false;
     //delay(20);
 }
 
 // should be run 20ms after request temphum
 void sht31_read_temphum(float* temp, float* hum) {
     NRF_LOG_INFO("read temphum");
-    /* uint8_t readbuffer[6]; */
-    /* twi_done = false; */
-    /* uint32_t err_code = nrfx_twim_rx(&twi, SHT31_ADDR, (uint8_t*)&readbuffer, sizeof(readbuffer)); */
-    /* APP_ERROR_CHECK(err_code); */
-    /* while (twi_done == false); //block till read buffer is filled */ 
+    while (twi_done == false) {} //block till read buffer is filled 
+    uint8_t readbuffer[6];
+    uint32_t err_code = nrfx_twim_rx(&twi, SHT31_ADDR, (uint8_t*)&readbuffer, sizeof(readbuffer));
+    APP_ERROR_CHECK(err_code);
+    twi_done = false;
 
-    /* if (readbuffer[2] != crc8(readbuffer, 2) || readbuffer[5] != crc8(readbuffer + 3, 2)){ */
-    /*     NRF_LOG_ERROR("CRC ERROR IN SHT31"); */
-    /* } */
+    while (twi_done == false) {} //block till read buffer is filled 
+    if (readbuffer[2] != crc8(readbuffer, 2) || readbuffer[5] != crc8(readbuffer + 3, 2)){
+        NRF_LOG_ERROR("CRC ERROR IN SHT31");
+    }
 
-    /* int32_t stemp = (int32_t)(((uint32_t)readbuffer[0] << 8) | readbuffer[1]); */
-    /* stemp = ((4375 * stemp) >> 14) - 4500; */
-    /* *temp = (float)stemp / 100.0f; */
+    int32_t stemp = (int32_t)(((uint32_t)readbuffer[0] << 8) | readbuffer[1]);
+    stemp = ((4375 * stemp) >> 14) - 4500;
+    *temp = (float)stemp / 100.0f;
 
-    /* uint32_t shum = ((uint32_t)readbuffer[3] << 8) | readbuffer[4]; */
-    /* shum = (625 * shum) >> 12; */
-    /* *hum = (float)shum / 100.0f; */
+    uint32_t shum = ((uint32_t)readbuffer[3] << 8) | readbuffer[4];
+    shum = (625 * shum) >> 12;
+    *hum = (float)shum / 100.0f;
 }

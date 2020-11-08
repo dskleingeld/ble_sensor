@@ -30,10 +30,11 @@ static void init_ss(struct Timer* timer){
 void timers_init(){
     // Initialize timer module.
     ret_code_t err_code = app_timer_init();
+    app_timer_resume(); //needed so app_timer_cnt_get works 
     APP_ERROR_CHECK(err_code);
 
     init(&schedualed_state.timer);
-    init_ss(&sht_timer);
+    init(&sht_timer);
 }
 
 void timer_start(struct Timer timer){
