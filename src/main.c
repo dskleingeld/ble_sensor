@@ -6,11 +6,18 @@
 #include "ble.h"
 #include "sensors/gpio.h"
 #include "sensors/timers.h"
-#include "sensors/sht31.h"
 #include "service_if.h"
 
 #include "service/characteristics/schedualed.h"
-extern struct SchedualedState schedualed;
+#include "service/characteristics/dynamic.h"
+#include <stdint.h>
+
+typedef void* (*Task)(uint32_t);
+
+Task tasks[2] = {
+    init_schedualed, 
+    init_dynamic,
+};
 
 int main() {
 
@@ -22,10 +29,6 @@ int main() {
     APP_ERROR_CHECK(ret_val);
     ret_val = nrf_crypto_rng_init(NULL, NULL);
     APP_ERROR_CHECK(ret_val);
-
-    // reset or init all sensors
-    twi_init();
-    sht31_reset();
 
     ble_stack_init();
     gap_params_init();
@@ -43,17 +46,15 @@ int main() {
     gpio_init();
     NRF_LOG_INFO("version 2.0");
 
-    // Enter main loop.
-    /* float temp; */
-    /* float hum; */
-    uint32_t last_schedualed = RTC_now();
-    /* uint32_t last_dynamic = RTC_now(); */
-    for (;;){
+    while(true) {
         idle_state_handle(); 
-        if (schedualed.notify_enabled && (RTC_elapsed(last_schedualed) > 5000)) {
-            last_schedualed = RTC_now();
-            NRF_LOG_INFO("timer");
-            //TODO handle schedualed
-        } //TODO else if handle dynamic
+        for (int i=0; i < 2; i++) {
+            uint32_t now = RTC_now();
+            void* next_task = tasks[i](now);
+            if (next_task != NULL) {
+                tasks[i] = next_task;
+            }
+        }
+        nrf_delay_ms(500);
     }
 }

@@ -11,6 +11,7 @@
 #include "math.h"
 #include "string.h"
 #include "limits.h"
+#include <stdint.h>
 
 struct DynamicState dynamic_state = {
     .uuid = 2,
@@ -122,15 +123,32 @@ static void encode_movement(uint8_t field_id, bool pressed, uint8_t data[]){
     encode_bool(field, pressed, data);
 }
 
+static bool button_val[2] = {false, false};
 void handle_dyn_movement(bool pressed, uint8_t pin){
-    uint8_t data[3] = {0};
-    uint8_t field_id;
     switch(pin){
-        case 2:
-            field_id = 0;
+        case 20:
+            button_val[0] = true;
+            break;
         case 31:
-            field_id = 1;
+            button_val[1] = true;
+            break;
     }
-    encode_movement(field_id, pressed, data);
-    send_notify(data);
+}
+
+static void* handle_dynamic(uint32_t now) {
+    uint8_t data[3] = {0};
+    if (button_val[0]){
+        encode_movement(0, true, data);
+        send_notify(data);
+        button_val[0] = false;
+    } else if (button_val[1]){
+        encode_movement(1, true, data);
+        send_notify(data);
+        button_val[1] = false;
+    }
+    return &handle_dynamic;
+}
+
+void* init_dynamic(uint32_t _now) {
+    return &handle_dynamic;
 }

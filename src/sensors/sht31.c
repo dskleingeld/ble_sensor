@@ -27,6 +27,7 @@
  */
 
 #include "src/sensors/sht31.h"
+#include "src/sensors/timers.h"
 /* #include "nrfx_twim.h" */
 #include "../../SDK_17/modules/nrfx/drivers/include/nrfx_twim.h"
 #include "nrf_log.h"
@@ -98,18 +99,26 @@ static uint8_t crc8(const uint8_t *data, int len) {
   return crc;
 }
 
+static void await_twi_done() {
+    uint32_t now = RTC_now();
+    while (twi_done == false) {
+        if (RTC_elapsed(now) >= 20) {// ms
+            break;
+        }
+    }
+}
+
 // allow for a 10 ms delay before reading again after reset
 void sht31_reset() {
     const int16_t SHT31_SOFTRESET = 0x30A2;
-    while (twi_done == false) {} //block till rdy
+    await_twi_done();
     sht31_write_command(SHT31_SOFTRESET);
     twi_done = false;
 }
 
 void sht31_request_temphum() {
-    NRF_LOG_INFO("request temphum");
     const int SHT31_MEAS_HIGHREP = 0x2400;
-    while (twi_done == false) {} //block till rdy
+    await_twi_done();
     sht31_write_command(SHT31_MEAS_HIGHREP);
     twi_done = false;
     //delay(20);
@@ -117,14 +126,13 @@ void sht31_request_temphum() {
 
 // should be run 20ms after request temphum
 void sht31_read_temphum(float* temp, float* hum) {
-    NRF_LOG_INFO("read temphum");
-    while (twi_done == false) {} //block till read buffer is filled 
+    await_twi_done();
     uint8_t readbuffer[6];
     uint32_t err_code = nrfx_twim_rx(&twi, SHT31_ADDR, (uint8_t*)&readbuffer, sizeof(readbuffer));
     APP_ERROR_CHECK(err_code);
     twi_done = false;
 
-    while (twi_done == false) {} //block till read buffer is filled 
+    await_twi_done();
     if (readbuffer[2] != crc8(readbuffer, 2) || readbuffer[5] != crc8(readbuffer + 3, 2)){
         NRF_LOG_ERROR("CRC ERROR IN SHT31");
     }

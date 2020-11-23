@@ -9,27 +9,21 @@
 #include "ble_srv_common.h"
 #include "ble_gatts.h"
 #include "timers.h"
+#include <stdint.h>
 
-static void request_values(void* p_context);
-
-APP_TIMER_DEF(timer_id2);
-APP_TIMER_DEF(timer_sht31);
 struct SchedualedState schedualed_state = {
     .uuid = 1,
     .notify_enabled = false,
-    .timer = {.id = &timer_id2, .timeout = 5000, .handler = request_values},
 };
 
 void enable_schedualed_notify(struct SchedualedState* self){
     NRF_LOG_INFO("sched notify enabled");
     self->notify_enabled = true;
-    timer_start(self->timer);
 }
 
 void disable_schedualed_notify(struct SchedualedState* self){
     NRF_LOG_INFO("notify disabled");
     self->notify_enabled = false;
-    timer_stop(self->timer);
 }
 
 void add_schedualed_characteristics(uint8_t base_index, uint16_t service_handle) {
@@ -127,28 +121,45 @@ bool send_notify(const float values[2]) {
     return true;
 }
 
-static void read_and_send(void* p_context){
-    NRF_LOG_INFO("thing called");
-    float values[2]; //temp, humid
-    sht31_read_temphum(&values[0], &values[1]);
+static void* start_measurements(uint32_t now);
+static void* read_measurments(uint32_t now);
+static void* send_measurments(uint32_t now);
 
-    NRF_LOG_INFO("temp: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[0]));
-    NRF_LOG_INFO("hum: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[1]));
-    
-    /* send_notify(values); */
+static uint32_t last_run;
+static float values[2]; //temp, humid
+static void* start_measurements(uint32_t now) {
+    uint32_t elapsed = RTC_elapsed(last_run);  
+    NRF_LOG_INFO("start_measurements %d %d", last_run, elapsed);
+    if(elapsed < 5000) {
+        return NULL;
+    }
+    NRF_LOG_INFO("start 2");
+    last_run = now; 
+    sht31_request_temphum();
+    return &read_measurments;
 }
 
-struct Timer sht_timer = {.id = &timer_sht31, .timeout = 200, .handler = read_and_send};
-static void request_values(void* p_context){
-    NRF_LOG_INFO("request values");
-    sht31_request_temphum();
-    nrf_delay_ms(20);
-    float values[2]; //temp, humid
+static void* read_measurments(uint32_t now) {
+    NRF_LOG_INFO("read_measurments");
+    if(RTC_elapsed(last_run) < 20) {
+        return NULL;
+    }
+    NRF_LOG_INFO("read 2");
     sht31_read_temphum(&values[0], &values[1]);
-
     NRF_LOG_INFO("temp: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[0]));
     NRF_LOG_INFO("hum: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[1]));
-    
+    return &send_measurments;
+}
+
+static void* send_measurments(uint32_t now) {
+    NRF_LOG_INFO("send 2");
     send_notify(values);
-    /* timer_start(sht_timer); */
+    return &start_measurements;
+}
+
+void* init_schedualed(uint32_t now) {
+    twi_init();
+    sht31_reset();
+    last_run = now;
+    return &start_measurements;
 }

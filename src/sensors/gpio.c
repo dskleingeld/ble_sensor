@@ -33,18 +33,16 @@ void handle_movement_sens(uint8_t pin, uint8_t button_action){
     switch(button_action){
         case APP_BUTTON_PUSH:
             handle_dyn_movement(true, pin);
-            NRF_LOG_INFO("movement sensor activated");
             break;
         case APP_BUTTON_RELEASE:
             handle_dyn_movement(false, pin);
-            NRF_LOG_INFO("movement sensor deactivated");
             break;
     }
 }
 
 void handle_gpio(uint8_t pin_no, uint8_t button_action){
     switch(pin_no){
-        case 2:
+        case 20:
             handle_movement_sens(pin_no, button_action);
             break;
         case 31:
@@ -56,17 +54,17 @@ void handle_gpio(uint8_t pin_no, uint8_t button_action){
 // has to be static for app_button to work
 static app_button_cfg_t config[] = {
     {
-    .pin_no = 2, 
+    .pin_no = 20,//2, 
     .active_state = APP_BUTTON_ACTIVE_HIGH,  
     .pull_cfg = NRF_GPIO_PIN_NOPULL, // no pullup/down for MOVEMENT_SENS      
     .button_handler = handle_gpio,
     },
-    {
-    .pin_no = 31, 
-    .active_state = APP_BUTTON_ACTIVE_HIGH,  
-    .pull_cfg = NRF_GPIO_PIN_NOPULL, // no pullup/down for MOVEMENT_SENS
-    .button_handler = handle_gpio,
-    },
+    /* { */
+    /* .pin_no = 31,//16,//31, */ 
+    /* .active_state = APP_BUTTON_ACTIVE_HIGH, */  
+    /* .pull_cfg = NRF_GPIO_PIN_NOPULL, // no pullup/down for MOVEMENT_SENS */
+    /* .button_handler = handle_gpio, */
+    /* }, */
 };
 
 /**
@@ -74,7 +72,7 @@ static app_button_cfg_t config[] = {
  * and configures GPIOTE to give an interrupt on pin change.
  */
 void gpio_init() {
-    uint32_t err_code = app_button_init(config, 1, 100);
+    uint32_t err_code = app_button_init(config, sizeof(config)/sizeof(app_button_cfg_t), 20);
     APP_ERROR_CHECK(err_code);
     err_code = app_button_enable();
     APP_ERROR_CHECK(err_code);

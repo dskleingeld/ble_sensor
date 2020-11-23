@@ -24,3 +24,4 @@ void enable_dynamic_notify(struct DynamicState* self);
 void disable_dynamic_notify(struct DynamicState* self);
 
 void add_dynamic_characteristics(uint8_t base_index, uint16_t service_handle);
+void* init_dynamic(uint32_t _now);
