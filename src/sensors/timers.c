@@ -1,61 +1,47 @@
 #include "timers.h"
-#include "app_timer.h"
 #include "characteristics/dynamic.h"
 #include "nrf_log.h"
 
+#include "nrfx_rtc.h"
 #include "stdint.h"
-#include "../service/characteristics/dynamic.h"
-#include "../service/characteristics/schedualed.h"
 
-extern struct Timer sht_timer;
+static const nrfx_rtc_t rtc = NRFX_RTC_INSTANCE(2); /**< Declaring an instance of nrf_drv_rtc for RTC0. */
 
-void test_handler(void * p_context){
-    NRF_LOG_INFO("TIMER FIRED");
-}
-
-static void init(struct Timer* timer){
-    ret_code_t err_code = app_timer_create(timer->id,
-        APP_TIMER_MODE_REPEATED,         
-        timer->handler);
-    APP_ERROR_CHECK(err_code);
-}
-
-static void init_ss(struct Timer* timer){
-    ret_code_t err_code = app_timer_create(timer->id,
-        APP_TIMER_MODE_SINGLE_SHOT,         
-        timer->handler);
-    APP_ERROR_CHECK(err_code);
-}
+static void rtc_handler(nrfx_rtc_int_type_t int_type){}
 
 void timers_init(){
-    // Initialize timer module.
-    ret_code_t err_code = app_timer_init();
-    app_timer_resume(); //needed so app_timer_cnt_get works 
-    APP_ERROR_CHECK(err_code);
+    const uint32_t RTC_FREQ = 2048;
+    nrfx_rtc_config_t config = {
+        .prescaler = RTC_FREQ_TO_PRESCALER(RTC_FREQ),
+        .interrupt_priority = 6,
+        .reliable = false,
+        .tick_latency = NRFX_RTC_US_TO_TICKS(5, RTC_FREQ),
+    };
+    NRF_LOG_INFO("before init");
+    uint32_t err = nrfx_rtc_init(&rtc, &config, &rtc_handler);
+    NRF_LOG_INFO("after init %d", err);
+    APP_ERROR_CHECK(err);
+
+    nrfx_rtc_overflow_enable(&rtc, false);
+    nrfx_rtc_enable(&rtc);
 }
 
-void timer_start(struct Timer timer){
-    uint32_t timeout = APP_TIMER_TICKS(timer.timeout);
-    ret_code_t err_code = app_timer_start(*timer.id, timeout, timer.handler);
-    APP_ERROR_CHECK(err_code);
-}
-
-void timer_stop(struct Timer timer){
-    ret_code_t err_code = app_timer_stop(*timer.id);
-    APP_ERROR_CHECK(err_code);
-}
 
 // nRF5 RTC overflows after 512 seconds
 // so we can not keep track of periods longer
 // then that
 uint32_t RTC_now() {
-    return app_timer_cnt_get();
+    uint32_t now = nrfx_rtc_counter_get(&rtc);
+    NRF_LOG_INFO("now: %d", now);
+    return now;
 }
 
 // handles overflow, returns time elapsed in milliseconds
-uint32_t RTC_elapsed(uint32_t prev_ticks) {
+uint32_t RTC_elapsed(const uint32_t prev_ticks) {
     uint32_t now = RTC_now();
-    uint32_t elapsed_ticks = (uint32_t)((int32_t)now - (int32_t)prev_ticks);
-    uint32_t elapsed = elapsed_ticks / APP_TIMER_TICKS(1);
+    NRF_LOG_INFO("prev_ticks: %d, now: %d", prev_ticks, now);
+    uint32_t elapsed_ticks = (uint32_t)((int64_t)now - (int64_t)prev_ticks);
+    /* uint32_t elapsed = elapsed_ticks / NRFX_RTC_US_TO_TICKS(1000); */
+    uint32_t elapsed = elapsed_ticks;
     return elapsed;
 }

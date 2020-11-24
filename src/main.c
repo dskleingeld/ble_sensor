@@ -10,9 +10,8 @@
 
 #include "service/characteristics/schedualed.h"
 #include "service/characteristics/dynamic.h"
-#include <stdint.h>
 
-typedef void* (*Task)(uint32_t);
+typedef void* (*Task)();
 
 Task tasks[2] = {
     init_schedualed, 
@@ -20,8 +19,6 @@ Task tasks[2] = {
 };
 
 int main() {
-
-    // Initialize.
     log_init();
     timers_init();
     power_management_init();
@@ -37,24 +34,25 @@ int main() {
 
     services_init();
     conn_params_init();
-    peer_manager_init();
+    /* peer_manager_init(); */
 
     // Start execution.
-    NRF_LOG_INFO("Bluetooth Dev Studio example started.");
-    application_timers_start();
-    advertising_start();
-    gpio_init();
-    NRF_LOG_INFO("version 2.0");
+    /* NRF_LOG_INFO("Bluetooth Dev Studio example started."); */
+    /* application_timers_start(); */
+    /* advertising_start(); */
+    /* gpio_init(); */
+    /* NRF_LOG_INFO("version 2.0"); */
 
     while(true) {
         idle_state_handle(); 
-        for (int i=0; i < 2; i++) {
-            uint32_t now = RTC_now();
-            void* next_task = tasks[i](now);
-            if (next_task != NULL) {
-                tasks[i] = next_task;
-            }
-        }
-        nrf_delay_ms(500);
+        /* for (int i=0; i < 2; i++) { */
+        /*     void* next_task = tasks[i](); */
+        /*     if (next_task != NULL) { */
+        /*         tasks[i] = next_task; */
+        /*     } */
+        /* } */
+        NRF_LOG_INFO("help");
+        /* RTC_now(); */
+        /* nrf_delay_ms(1000); */
     }
 }

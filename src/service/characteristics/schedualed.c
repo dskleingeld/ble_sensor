@@ -121,25 +121,28 @@ bool send_notify(const float values[2]) {
     return true;
 }
 
-static void* start_measurements(uint32_t now);
-static void* read_measurments(uint32_t now);
-static void* send_measurments(uint32_t now);
+static void* start_measurements();
+static void* read_measurments();
+static void* send_measurments();
 
 static uint32_t last_run;
 static float values[2]; //temp, humid
-static void* start_measurements(uint32_t now) {
+static void* start_measurements() {
+    NRF_LOG_INFO("last_run: %d");
     uint32_t elapsed = RTC_elapsed(last_run);  
-    NRF_LOG_INFO("start_measurements %d %d", last_run, elapsed);
+    NRF_LOG_INFO("start_measurements %d", elapsed);
     if(elapsed < 5000) {
         return NULL;
     }
     NRF_LOG_INFO("start 2");
-    last_run = now; 
+    last_run = RTC_now(); 
     sht31_request_temphum();
+    NRF_LOG_INFO("last_run: %d");
     return &read_measurments;
 }
 
-static void* read_measurments(uint32_t now) {
+static void* read_measurments() {
+    NRF_LOG_INFO("last_run: %d");
     NRF_LOG_INFO("read_measurments");
     if(RTC_elapsed(last_run) < 20) {
         return NULL;
@@ -148,18 +151,23 @@ static void* read_measurments(uint32_t now) {
     sht31_read_temphum(&values[0], &values[1]);
     NRF_LOG_INFO("temp: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[0]));
     NRF_LOG_INFO("hum: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(values[1]));
+    NRF_LOG_INFO("last_run: %d");
     return &send_measurments;
 }
 
-static void* send_measurments(uint32_t now) {
+static void* send_measurments() {
+    NRF_LOG_INFO("last_run: %d");
     NRF_LOG_INFO("send 2");
     send_notify(values);
+    NRF_LOG_INFO("last_run: %d");
     return &start_measurements;
 }
 
-void* init_schedualed(uint32_t now) {
+void* init_schedualed() {
+    NRF_LOG_INFO("last_run: %d");
     twi_init();
     sht31_reset();
-    last_run = now;
+    last_run = RTC_now();
+    NRF_LOG_INFO("last_run: %d");
     return &start_measurements;
 }

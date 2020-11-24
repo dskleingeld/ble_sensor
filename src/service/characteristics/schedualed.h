@@ -17,4 +17,4 @@ void disable_schedualed_notify(struct SchedualedState* self);
 void handle_schedualed();
 
 void add_schedualed_characteristics(uint8_t base_index, uint16_t service_handle);
-void* init_schedualed(uint32_t now);
+void* init_schedualed();

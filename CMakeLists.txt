@@ -143,6 +143,7 @@ list(APPEND SOURCE_FILES "src/ble.c")
 list(APPEND SOURCE_FILES "src/main.c")
 
 list(APPEND SOURCE_FILES "SDK_17/modules/nrfx/drivers/src/nrfx_twim.c")
+list(APPEND SOURCE_FILES "SDK_17/modules/nrfx/drivers/src/nrfx_rtc.c")
 
 #used std libs
 list(APPEND STD_LIBS "m")

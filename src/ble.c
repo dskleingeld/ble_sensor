@@ -474,8 +474,9 @@ void power_management_init()
 void idle_state_handle() {
     uint32_t err_code = nrf_ble_lesc_request_handler();
     APP_ERROR_CHECK(err_code);
+    NRF_LOG_PROCESS();
 
-    if (NRF_LOG_PROCESS() == false) {
-        /* nrf_pwr_mgmt_run(); */
-    }
+    /* if (NRF_LOG_PROCESS() == false) { */
+    /*     /1* nrf_pwr_mgmt_run(); *1/ */
+    /* } */
 }

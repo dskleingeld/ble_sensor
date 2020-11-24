@@ -135,7 +135,7 @@ void handle_dyn_movement(bool pressed, uint8_t pin){
     }
 }
 
-static void* handle_dynamic(uint32_t now) {
+static void* handle_dynamic() {
     uint8_t data[3] = {0};
     if (button_val[0]){
         encode_movement(0, true, data);
@@ -149,6 +149,6 @@ static void* handle_dynamic(uint32_t now) {
     return &handle_dynamic;
 }
 
-void* init_dynamic(uint32_t _now) {
+void* init_dynamic() {
     return &handle_dynamic;
 }
